@@ -1,0 +1,2305 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Costra — Your Personal Savings Concierge</title>
+<meta name="description" content="Upload your bills. Costra finds wasted spending, hidden fees, and cheaper alternatives — in minutes." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+/* ─────────────────────────────────────────
+   Tokens
+───────────────────────────────────────── */
+:root {
+  --bg:        #07090f;
+  --bg-2:      #0c101b;
+  --bg-3:      #111624;
+  --surface:   #161c2d;
+  --border:    rgba(255,255,255,0.07);
+  --border-hi: rgba(255,255,255,0.14);
+
+  --ink:       #f0f4ff;
+  --ink-2:     #9aa5c4;
+  --ink-3:     #5d6a8a;
+
+  --mint:      #1dffa0;
+  --mint-dim:  rgba(29,255,160,0.12);
+  --mint-glow: rgba(29,255,160,0.25);
+  --gold:      #f5c842;
+  --gold-dim:  rgba(245,200,66,0.12);
+
+  --radius-sm: 10px;
+  --radius:    16px;
+  --radius-lg: 24px;
+
+  --sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --display: 'Syne', system-ui, sans-serif;
+
+  --ease: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* ─────────────────────────────────────────
+   Reset
+───────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; display: block; }
+button { cursor: pointer; font-family: inherit; border: none; }
+ul, ol { list-style: none; }
+
+/* ─────────────────────────────────────────
+   Layout helpers
+───────────────────────────────────────── */
+.wrap {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0 28px;
+}
+.section { padding: 112px 0; }
+.section-sm { padding: 72px 0; }
+
+/* ─────────────────────────────────────────
+   Typography
+───────────────────────────────────────── */
+.display-xl {
+  font-family: var(--display);
+  font-size: clamp(44px, 7vw, 88px);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+}
+.display-lg {
+  font-family: var(--display);
+  font-size: clamp(32px, 4.5vw, 56px);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+}
+.display-md {
+  font-family: var(--display);
+  font-size: clamp(24px, 3vw, 36px);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+.body-lg { font-size: 18px; line-height: 1.65; color: var(--ink-2); }
+.body-md { font-size: 16px; line-height: 1.7; color: var(--ink-2); }
+.label {
+  font-family: var(--display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mint);
+}
+
+/* ─────────────────────────────────────────
+   Buttons
+───────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  border-radius: 100px;
+  font-size: 15px;
+  font-weight: 600;
+  transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease), opacity 0.2s;
+}
+.btn:active { transform: scale(0.97) !important; }
+.btn-primary {
+  background: var(--mint);
+  color: #07090f;
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 32px var(--mint-glow), 0 8px 24px rgba(0,0,0,0.4);
+}
+.btn-ghost {
+  background: rgba(255,255,255,0.06);
+  color: var(--ink);
+  border: 1px solid var(--border-hi);
+}
+.btn-ghost:hover {
+  background: rgba(255,255,255,0.1);
+  transform: translateY(-2px);
+}
+.btn-lg { padding: 18px 36px; font-size: 17px; }
+.btn-sm { padding: 10px 20px; font-size: 14px; }
+
+/* ─────────────────────────────────────────
+   Gradient text
+───────────────────────────────────────── */
+.grad-mint {
+  background: linear-gradient(135deg, var(--mint) 0%, #00d4ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.grad-warm {
+  background: linear-gradient(135deg, var(--gold) 0%, #ff9f43 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─────────────────────────────────────────
+   Section label row
+───────────────────────────────────────── */
+.section-header {
+  text-align: center;
+  margin-bottom: 72px;
+}
+.section-header .label { margin-bottom: 16px; }
+.section-header .body-lg { max-width: 560px; margin: 16px auto 0; }
+
+/* ─────────────────────────────────────────
+   NAV
+───────────────────────────────────────── */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  transition: background 0.3s, border-color 0.3s;
+}
+.nav.scrolled {
+  background: rgba(7,9,15,0.82);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-inner {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  padding: 20px 28px;
+  max-width: 1160px;
+  margin: 0 auto;
+}
+.nav-logo {
+  font-family: var(--display);
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  flex-shrink: 0;
+}
+.nav-logo span { color: var(--mint); }
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  margin-left: auto;
+}
+.nav-links a {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-2);
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--ink); }
+.nav-cta { margin-left: 16px; }
+.nav-menu-btn {
+  display: none;
+  background: none;
+  color: var(--ink);
+  padding: 8px;
+}
+.nav-menu-btn svg { display: block; }
+
+/* Mobile nav */
+.mobile-nav {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  background: var(--bg-2);
+  padding: 100px 28px 40px;
+  flex-direction: column;
+  gap: 32px;
+}
+.mobile-nav.open { display: flex; }
+.mobile-nav a {
+  font-family: var(--display);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--ink-2);
+  transition: color 0.2s;
+}
+.mobile-nav a:hover { color: var(--mint); }
+
+/* ─────────────────────────────────────────
+   HERO
+───────────────────────────────────────── */
+.hero {
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  padding: 120px 0 80px;
+}
+/* Background grid */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(29,255,160,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(29,255,160,0.04) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 0%, transparent 80%);
+}
+/* Radial glow */
+.hero::after {
+  content: '';
+  position: absolute;
+  top: -20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 900px;
+  height: 600px;
+  background: radial-gradient(ellipse, rgba(29,255,160,0.08) 0%, transparent 65%);
+  pointer-events: none;
+}
+.hero-inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 64px;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px 6px 10px;
+  background: var(--mint-dim);
+  border: 1px solid rgba(29,255,160,0.2);
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--mint);
+  margin-bottom: 28px;
+}
+.hero-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--mint);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.75); }
+}
+.hero-title { margin-bottom: 24px; }
+.hero-sub {
+  font-size: 19px;
+  line-height: 1.65;
+  color: var(--ink-2);
+  max-width: 460px;
+  margin-bottom: 40px;
+}
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.hero-trust {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 40px;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+.hero-trust-avatars {
+  display: flex;
+}
+.hero-trust-avatars span {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  margin-left: -8px;
+}
+.hero-trust-avatars span:first-child { margin-left: 0; }
+
+/* Hero visual */
+.hero-visual {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hero-card {
+  background: var(--surface);
+  border: 1px solid var(--border-hi);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 80px rgba(29,255,160,0.06);
+  animation: float 6s ease-in-out infinite;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+.hero-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.hero-card-icon {
+  width: 36px;
+  height: 36px;
+  background: var(--mint-dim);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+.hero-card-title {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 15px;
+}
+.hero-card-sub { font-size: 12px; color: var(--ink-3); }
+.scan-bar {
+  height: 4px;
+  background: var(--bg);
+  border-radius: 2px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+.scan-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--mint), #00d4ff);
+  border-radius: 2px;
+  animation: scanning 2.5s ease-in-out infinite;
+}
+@keyframes scanning {
+  0% { width: 0%; opacity: 1; }
+  60% { width: 100%; opacity: 1; }
+  80% { width: 100%; opacity: 0; }
+  81% { width: 0%; opacity: 0; }
+  100% { width: 0%; opacity: 1; }
+}
+.saving-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  animation: fadeIn 0.4s var(--ease) both;
+}
+.saving-item:last-child { border-bottom: none; }
+.saving-item-left { display: flex; align-items: center; gap: 10px; }
+.saving-item-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+}
+.saving-item-dot.green { background: var(--mint); }
+.saving-item-dot.gold { background: var(--gold); }
+.saving-item-dot.red { background: #ff6b6b; }
+.saving-item-name { font-weight: 500; }
+.saving-item-tag {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 100px;
+  font-weight: 600;
+}
+.saving-item-tag.found { background: var(--mint-dim); color: var(--mint); }
+.saving-item-tag.flagged { background: rgba(255,107,107,0.12); color: #ff6b6b; }
+.saving-amount { font-family: var(--display); font-weight: 700; color: var(--mint); }
+.hero-card-total {
+  margin-top: 16px;
+  padding: 14px;
+  background: var(--mint-dim);
+  border: 1px solid rgba(29,255,160,0.15);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.hero-card-total-label { font-size: 13px; color: var(--mint); font-weight: 600; }
+.hero-card-total-amount {
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--mint);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Floating badges */
+.hero-float-badge {
+  position: absolute;
+  background: var(--surface);
+  border: 1px solid var(--border-hi);
+  border-radius: var(--radius-sm);
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+.hero-float-badge.left {
+  left: -40px;
+  bottom: 60px;
+  animation: float2 5s ease-in-out infinite;
+}
+.hero-float-badge.top {
+  right: -20px;
+  top: 20px;
+  animation: float2 5s ease-in-out infinite 1.2s;
+}
+@keyframes float2 {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.badge-mint { color: var(--mint); }
+.badge-gold { color: var(--gold); }
+
+/* ─────────────────────────────────────────
+   STATS STRIP
+───────────────────────────────────────── */
+.stats {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-2);
+  padding: 32px 0;
+}
+.stats-inner {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+}
+.stat-item {
+  text-align: center;
+  padding: 16px 0;
+  border-right: 1px solid var(--border);
+}
+.stat-item:last-child { border-right: none; }
+.stat-number {
+  font-family: var(--display);
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -0.03em;
+}
+.stat-number span { color: var(--mint); }
+.stat-label { font-size: 13px; color: var(--ink-3); margin-top: 4px; font-weight: 500; }
+
+/* ─────────────────────────────────────────
+   HOW IT WORKS
+───────────────────────────────────────── */
+.how { background: var(--bg); }
+.how-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  position: relative;
+}
+.how-connector {
+  position: absolute;
+  top: 48px;
+  left: calc(33.33% + 24px);
+  right: calc(33.33% + 24px);
+  height: 1px;
+  background: linear-gradient(90deg, var(--mint) 0%, rgba(29,255,160,0.2) 50%, var(--mint) 100%);
+  pointer-events: none;
+}
+.how-connector::before,
+.how-connector::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--mint);
+  box-shadow: 0 0 12px var(--mint-glow);
+}
+.how-connector::before { left: -4px; }
+.how-connector::after { right: -4px; }
+.step-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 36px 32px 40px;
+  transition: border-color 0.3s, transform 0.3s var(--ease), box-shadow 0.3s;
+  position: relative;
+}
+.step-card:hover {
+  border-color: var(--border-hi);
+  transform: translateY(-4px);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.3);
+}
+.step-number {
+  font-family: var(--display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--mint);
+  margin-bottom: 20px;
+}
+.step-icon {
+  width: 56px;
+  height: 56px;
+  background: var(--mint-dim);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  margin-bottom: 24px;
+  transition: transform 0.3s var(--ease);
+}
+.step-card:hover .step-icon { transform: scale(1.1) rotate(-4deg); }
+.step-title {
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.step-desc { font-size: 15px; color: var(--ink-2); line-height: 1.65; }
+
+/* ─────────────────────────────────────────
+   AI SCANNER
+───────────────────────────────────────── */
+.scanner { background: var(--bg-2); }
+.scanner-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 72px;
+  align-items: start;
+}
+.scanner-content { padding-top: 8px; }
+.scanner-content .label { margin-bottom: 16px; }
+.scanner-content .display-lg { margin-bottom: 20px; }
+.scanner-content .body-lg { margin-bottom: 40px; }
+.scanner-features { display: flex; flex-direction: column; gap: 20px; }
+.scanner-feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.scanner-feature-icon {
+  width: 42px;
+  height: 42px;
+  background: var(--bg-3);
+  border: 1px solid var(--border-hi);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.scanner-feature-text h4 {
+  font-family: var(--display);
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.scanner-feature-text p { font-size: 14px; color: var(--ink-2); }
+
+/* Upload box */
+.upload-panel {
+  background: var(--surface);
+  border: 1px solid var(--border-hi);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.35);
+}
+.upload-zone {
+  border: 2px dashed rgba(29,255,160,0.25);
+  border-radius: var(--radius);
+  padding: 48px 32px;
+  text-align: center;
+  transition: border-color 0.25s, background 0.25s;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.upload-zone:hover,
+.upload-zone.drag-over {
+  border-color: var(--mint);
+  background: var(--mint-dim);
+}
+.upload-zone::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(29,255,160,0.04) 0%, transparent 60%);
+}
+.upload-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  display: block;
+  position: relative;
+  animation: bobUp 3s ease-in-out infinite;
+}
+@keyframes bobUp {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.upload-zone h3 {
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.upload-zone p { font-size: 13px; color: var(--ink-3); margin-bottom: 20px; }
+.upload-types {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+.upload-type-chip {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-3);
+}
+.upload-divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 24px 0;
+  color: var(--ink-3);
+  font-size: 13px;
+}
+.upload-divider::before,
+.upload-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.upload-input { display: none; }
+
+/* Scan result preview */
+.scan-result-preview {
+  margin-top: 24px;
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.scan-result-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.scan-result-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--mint);
+  animation: pulse 2s ease-in-out infinite;
+}
+.scan-result-rows { padding: 4px 0; }
+.scan-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+}
+.scan-row:last-child { border-bottom: none; }
+.scan-row-left { display: flex; align-items: center; gap: 10px; }
+.scan-row-icon { font-size: 16px; }
+.scan-row-label { font-weight: 500; }
+.scan-row-sub { font-size: 11px; color: var(--ink-3); }
+.scan-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 100px;
+}
+.scan-badge.save { background: var(--mint-dim); color: var(--mint); }
+.scan-badge.flag { background: rgba(255,107,107,0.12); color: #ff6b6b; }
+.scan-badge.watch { background: var(--gold-dim); color: var(--gold); }
+
+/* ─────────────────────────────────────────
+   SAMPLE RESULTS
+───────────────────────────────────────── */
+.results { background: var(--bg); }
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.result-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  transition: border-color 0.3s, transform 0.3s var(--ease), box-shadow 0.3s;
+}
+.result-card:hover {
+  border-color: var(--border-hi);
+  transform: translateY(-4px);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+}
+.result-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.result-card-emoji { font-size: 28px; }
+.result-tag {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 100px;
+}
+.result-tag.savings { background: var(--mint-dim); color: var(--mint); }
+.result-tag.duplicate { background: rgba(255,107,107,0.12); color: #ff6b6b; }
+.result-tag.overpriced { background: var(--gold-dim); color: var(--gold); }
+.result-card-name {
+  font-family: var(--display);
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.result-card-desc { font-size: 13px; color: var(--ink-2); margin-bottom: 20px; line-height: 1.55; }
+.result-card-divider { height: 1px; background: var(--border); margin-bottom: 16px; }
+.result-card-saving {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.result-card-saving-amount {
+  font-family: var(--display);
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--mint);
+}
+.result-card-saving-period { font-size: 13px; color: var(--ink-3); }
+.result-card-saving-label { font-size: 12px; color: var(--ink-3); margin-top: 4px; }
+
+/* Total savings banner */
+.savings-banner {
+  margin-top: 48px;
+  background: linear-gradient(135deg, rgba(29,255,160,0.08) 0%, rgba(0,212,255,0.08) 100%);
+  border: 1px solid rgba(29,255,160,0.2);
+  border-radius: var(--radius-lg);
+  padding: 36px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+.savings-banner-left h3 {
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.savings-banner-left p { font-size: 14px; color: var(--ink-2); }
+.savings-banner-right {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.savings-banner-amount {
+  font-family: var(--display);
+  font-size: 52px;
+  font-weight: 800;
+  color: var(--mint);
+  letter-spacing: -0.04em;
+}
+.savings-banner-period { font-size: 18px; color: var(--ink-3); }
+
+/* ─────────────────────────────────────────
+   FEATURES GRID
+───────────────────────────────────────── */
+.features { background: var(--bg-2); }
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.feature-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.feature-card:hover {
+  border-color: var(--border-hi);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.2);
+}
+.feature-card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+.feature-card-icon.mint { background: var(--mint-dim); }
+.feature-card-icon.gold { background: var(--gold-dim); }
+.feature-card-icon.blue { background: rgba(59,130,246,0.12); }
+.feature-card h4 {
+  font-family: var(--display);
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.feature-card p { font-size: 14px; color: var(--ink-2); line-height: 1.65; }
+
+/* ─────────────────────────────────────────
+   ABOUT
+───────────────────────────────────────── */
+.about { background: var(--bg); }
+.about-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+.about-visual {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+.about-visual-card {
+  background: var(--surface);
+  border: 1px solid var(--border-hi);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  width: 100%;
+  max-width: 380px;
+}
+.about-visual-card-title {
+  font-family: var(--display);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-3);
+  margin-bottom: 24px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.timeline { display: flex; flex-direction: column; gap: 0; }
+.timeline-item {
+  display: flex;
+  gap: 16px;
+  padding-bottom: 24px;
+  position: relative;
+}
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-item:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 17px;
+  top: 36px;
+  bottom: 0;
+  width: 2px;
+  background: var(--border);
+}
+.timeline-dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+.timeline-dot.active { background: var(--mint-dim); border: 2px solid var(--mint); }
+.timeline-dot.future { background: var(--bg-3); border: 2px solid var(--border-hi); }
+.timeline-text h4 {
+  font-family: var(--display);
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.timeline-text p { font-size: 13px; color: var(--ink-2); }
+.timeline-chip {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 100px;
+  margin-top: 6px;
+}
+.timeline-chip.live { background: var(--mint-dim); color: var(--mint); }
+.timeline-chip.coming { background: rgba(255,255,255,0.06); color: var(--ink-3); }
+
+.about-content .label { margin-bottom: 16px; }
+.about-content .display-lg { margin-bottom: 20px; }
+.about-content .body-lg { margin-bottom: 32px; }
+.about-values { display: flex; flex-direction: column; gap: 16px; margin-bottom: 40px; }
+.about-value {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+.about-value-check {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--mint-dim);
+  border: 1px solid rgba(29,255,160,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+  font-size: 13px;
+}
+.about-value p { font-size: 15px; color: var(--ink-2); }
+.about-value p strong { color: var(--ink); }
+
+/* ─────────────────────────────────────────
+   TESTIMONIALS
+───────────────────────────────────────── */
+.testimonials { background: var(--bg-2); }
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.testimonial-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  transition: border-color 0.3s, transform 0.3s var(--ease);
+}
+.testimonial-card:hover {
+  border-color: var(--border-hi);
+  transform: translateY(-4px);
+}
+.testimonial-stars { color: var(--gold); font-size: 14px; letter-spacing: 2px; }
+.testimonial-quote {
+  font-size: 15px;
+  color: var(--ink-2);
+  line-height: 1.65;
+  flex: 1;
+}
+.testimonial-quote em { color: var(--mint); font-style: normal; font-weight: 600; }
+.testimonial-author { display: flex; align-items: center; gap: 12px; }
+.testimonial-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.testimonial-name {
+  font-family: var(--display);
+  font-size: 14px;
+  font-weight: 700;
+}
+.testimonial-meta { font-size: 12px; color: var(--ink-3); }
+.saving-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: var(--mint-dim);
+  border: 1px solid rgba(29,255,160,0.15);
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--mint);
+}
+
+/* ─────────────────────────────────────────
+   FAQ
+───────────────────────────────────────── */
+.faq { background: var(--bg); }
+.faq-inner {
+  max-width: 720px;
+  margin: 0 auto;
+}
+.faq-list { display: flex; flex-direction: column; gap: 4px; }
+.faq-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.faq-item.open { border-color: var(--border-hi); }
+.faq-question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 24px;
+  cursor: pointer;
+  font-family: var(--display);
+  font-size: 16px;
+  font-weight: 600;
+  background: none;
+  color: var(--ink);
+  width: 100%;
+  text-align: left;
+  transition: color 0.2s;
+}
+.faq-question:hover { color: var(--mint); }
+.faq-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--bg-3);
+  border: 1px solid var(--border-hi);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.3s var(--ease), background 0.2s;
+  font-size: 16px;
+  color: var(--ink-2);
+}
+.faq-item.open .faq-icon {
+  transform: rotate(45deg);
+  background: var(--mint-dim);
+  color: var(--mint);
+}
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s var(--ease), padding 0.4s var(--ease);
+}
+.faq-item.open .faq-answer { max-height: 300px; }
+.faq-answer-inner {
+  padding: 0 24px 20px;
+  font-size: 15px;
+  color: var(--ink-2);
+  line-height: 1.7;
+}
+
+/* ─────────────────────────────────────────
+   SIGNUP / CTA
+───────────────────────────────────────── */
+.signup { background: var(--bg-2); }
+.signup-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+.signup-content .label { margin-bottom: 16px; }
+.signup-content .display-lg { margin-bottom: 20px; }
+.signup-content .body-lg { margin-bottom: 40px; }
+.signup-perks { display: flex; flex-direction: column; gap: 12px; margin-bottom: 40px; }
+.signup-perk {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--ink-2);
+}
+.signup-perk::before {
+  content: '✓';
+  width: 20px;
+  height: 20px;
+  background: var(--mint-dim);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--mint);
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.signup-form-panel {
+  background: var(--surface);
+  border: 1px solid var(--border-hi);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.35);
+}
+.signup-form-title {
+  font-family: var(--display);
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+.signup-form-sub { font-size: 14px; color: var(--ink-2); margin-bottom: 28px; }
+.form-group { margin-bottom: 16px; }
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-2);
+  margin-bottom: 8px;
+}
+.form-input {
+  width: 100%;
+  background: var(--bg-3);
+  border: 1px solid var(--border-hi);
+  border-radius: var(--radius-sm);
+  padding: 13px 16px;
+  font-family: var(--sans);
+  font-size: 15px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-input::placeholder { color: var(--ink-3); }
+.form-input:focus {
+  border-color: var(--mint);
+  box-shadow: 0 0 0 3px var(--mint-dim);
+}
+.form-select {
+  width: 100%;
+  background: var(--bg-3);
+  border: 1px solid var(--border-hi);
+  border-radius: var(--radius-sm);
+  padding: 13px 16px;
+  font-family: var(--sans);
+  font-size: 15px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.2s;
+  appearance: none;
+  cursor: pointer;
+}
+.form-select:focus { border-color: var(--mint); }
+.form-select option { background: var(--bg-3); }
+.form-btn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 15px;
+  font-size: 16px;
+  border-radius: var(--radius-sm);
+}
+.form-note { font-size: 12px; color: var(--ink-3); text-align: center; margin-top: 12px; }
+
+/* ─────────────────────────────────────────
+   CTA BANNER
+───────────────────────────────────────── */
+.cta-banner {
+  background: linear-gradient(135deg, rgba(29,255,160,0.09) 0%, rgba(0,212,255,0.06) 100%);
+  border-top: 1px solid rgba(29,255,160,0.15);
+  border-bottom: 1px solid rgba(29,255,160,0.15);
+  padding: 80px 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.cta-banner::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  height: 400px;
+  background: radial-gradient(ellipse, rgba(29,255,160,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.cta-banner .display-lg { margin-bottom: 16px; }
+.cta-banner .body-lg { max-width: 480px; margin: 0 auto 36px; }
+.cta-banner-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* ─────────────────────────────────────────
+   FOOTER
+───────────────────────────────────────── */
+.footer {
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  padding: 56px 0 32px;
+}
+.footer-inner {
+  display: grid;
+  grid-template-columns: 1.8fr 1fr 1fr 1fr;
+  gap: 48px;
+}
+.footer-brand .logo { font-size: 22px; margin-bottom: 16px; }
+.footer-brand p { font-size: 14px; color: var(--ink-3); max-width: 280px; line-height: 1.65; margin-bottom: 24px; }
+.footer-social {
+  display: flex;
+  gap: 12px;
+}
+.social-link {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.social-link:hover { border-color: var(--border-hi); background: var(--bg-3); }
+.footer-col h5 {
+  font-family: var(--display);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 16px;
+}
+.footer-col ul { display: flex; flex-direction: column; gap: 10px; }
+.footer-col a {
+  font-size: 14px;
+  color: var(--ink-2);
+  transition: color 0.2s;
+}
+.footer-col a:hover { color: var(--mint); }
+.footer-bottom {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.footer-copyright { font-size: 13px; color: var(--ink-3); }
+.footer-legal {
+  display: flex;
+  gap: 24px;
+}
+.footer-legal a { font-size: 13px; color: var(--ink-3); transition: color 0.2s; }
+.footer-legal a:hover { color: var(--ink-2); }
+
+/* ─────────────────────────────────────────
+   Scroll animations
+───────────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.65s var(--ease), transform 0.65s var(--ease);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+.reveal-delay-5 { transition-delay: 0.5s; }
+
+/* ─────────────────────────────────────────
+   Responsive
+───────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .hero-inner { grid-template-columns: 1fr; gap: 56px; }
+  .hero-visual { display: none; }
+  .hero-inner { text-align: center; }
+  .hero-sub { max-width: 100%; }
+  .hero-actions { justify-content: center; }
+  .hero-trust { justify-content: center; }
+  .hero-float-badge { display: none; }
+
+  .scanner-inner { grid-template-columns: 1fr; gap: 48px; }
+  .about-inner { grid-template-columns: 1fr; gap: 48px; }
+  .about-visual { display: none; }
+  .signup-inner { grid-template-columns: 1fr; gap: 48px; }
+
+  .stats-inner { grid-template-columns: repeat(2, 1fr); }
+  .stat-item:nth-child(2) { border-right: none; }
+  .stat-item { border-bottom: 1px solid var(--border); }
+  .stat-item:nth-child(3),
+  .stat-item:nth-child(4) { border-bottom: none; }
+
+  .results-grid { grid-template-columns: repeat(2, 1fr); }
+  .features-grid { grid-template-columns: repeat(2, 1fr); }
+  .testimonials-grid { grid-template-columns: repeat(2, 1fr); }
+  .footer-inner { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 768px) {
+  .section { padding: 72px 0; }
+  .section-sm { padding: 48px 0; }
+  .section-header { margin-bottom: 48px; }
+
+  .nav-links { display: none; }
+  .nav-cta { display: none; }
+  .nav-menu-btn { display: block; margin-left: auto; }
+
+  .how-steps { grid-template-columns: 1fr; gap: 16px; }
+  .how-connector { display: none; }
+
+  .results-grid { grid-template-columns: 1fr; }
+  .features-grid { grid-template-columns: 1fr; }
+  .testimonials-grid { grid-template-columns: 1fr; }
+  .footer-inner { grid-template-columns: 1fr; }
+
+  .savings-banner { flex-direction: column; text-align: center; }
+  .savings-banner-amount { font-size: 40px; }
+
+  .stats-inner { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .display-xl { font-size: 38px; }
+  .hero-actions { flex-direction: column; width: 100%; }
+  .hero-actions .btn { width: 100%; justify-content: center; }
+  .cta-banner-actions { flex-direction: column; }
+  .cta-banner-actions .btn { width: 100%; justify-content: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- ───────────── NAV ───────────── -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">costra<span>.</span></a>
+    <div class="nav-links">
+      <a href="#how-it-works">How it works</a>
+      <a href="#scanner">AI Scanner</a>
+      <a href="#results">Results</a>
+      <a href="#about">About</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <a href="#signup" class="btn btn-primary btn-sm nav-cta">Get started free</a>
+    <button class="nav-menu-btn" id="menuBtn" aria-label="Menu">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect y="4" width="22" height="2" rx="1" fill="currentColor"/><rect y="10" width="22" height="2" rx="1" fill="currentColor"/><rect y="16" width="22" height="2" rx="1" fill="currentColor"/></svg>
+    </button>
+  </div>
+</nav>
+
+<!-- Mobile nav -->
+<div class="mobile-nav" id="mobileNav">
+  <a href="#how-it-works" onclick="closeMobileNav()">How it works</a>
+  <a href="#scanner" onclick="closeMobileNav()">AI Scanner</a>
+  <a href="#results" onclick="closeMobileNav()">Results</a>
+  <a href="#about" onclick="closeMobileNav()">About</a>
+  <a href="#faq" onclick="closeMobileNav()">FAQ</a>
+  <a href="#signup" onclick="closeMobileNav()" class="btn btn-primary" style="width:fit-content">Get started free</a>
+</div>
+
+<!-- ───────────── HERO ───────────── -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-inner">
+      <div class="hero-copy">
+        <div class="hero-badge">
+          <span class="hero-badge-dot"></span>
+          AI-powered savings concierge
+        </div>
+        <h1 class="display-xl hero-title">
+          Stop leaving<br>
+          money on<br>
+          <span class="grad-mint">the table.</span>
+        </h1>
+        <p class="hero-sub">
+          Upload your bills, subscriptions, and bank statements. Costra finds wasted spending, duplicate charges, and cheaper alternatives — in minutes.
+        </p>
+        <div class="hero-actions">
+          <a href="#signup" class="btn btn-primary btn-lg">
+            Start saving today
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a href="#scanner" class="btn btn-ghost btn-lg">See how it works</a>
+        </div>
+        <div class="hero-trust">
+          <div class="hero-trust-avatars">
+            <span style="background:#22d3a5;color:#07090f">S</span>
+            <span style="background:#f5c842;color:#07090f">M</span>
+            <span style="background:#3b82f6;color:#fff">J</span>
+            <span style="background:#a855f7;color:#fff">A</span>
+            <span style="background:#ef4444;color:#fff">R</span>
+          </div>
+          <span>Joined by 2,400+ people finding savings this month</span>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-card">
+          <div class="hero-card-header">
+            <div class="hero-card-icon">🔍</div>
+            <div>
+              <div class="hero-card-title">Costra Analysis</div>
+              <div class="hero-card-sub">3 documents scanned</div>
+            </div>
+          </div>
+          <div class="scan-bar"><div class="scan-bar-fill"></div></div>
+          <div class="saving-item" style="animation-delay:0s">
+            <div class="saving-item-left">
+              <span class="saving-item-dot green"></span>
+              <span class="saving-item-name">Netflix</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span class="saving-item-tag found">Cheaper plan</span>
+              <span class="saving-amount">$7/mo</span>
+            </div>
+          </div>
+          <div class="saving-item" style="animation-delay:0.15s">
+            <div class="saving-item-left">
+              <span class="saving-item-dot red"></span>
+              <span class="saving-item-name">Gym membership</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span class="saving-item-tag flagged">Unused</span>
+              <span class="saving-amount">$49/mo</span>
+            </div>
+          </div>
+          <div class="saving-item" style="animation-delay:0.3s">
+            <div class="saving-item-left">
+              <span class="saving-item-dot gold"></span>
+              <span class="saving-item-name">Internet plan</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span class="saving-item-tag found">Better rate</span>
+              <span class="saving-amount">$22/mo</span>
+            </div>
+          </div>
+          <div class="saving-item" style="animation-delay:0.45s">
+            <div class="saving-item-left">
+              <span class="saving-item-dot green"></span>
+              <span class="saving-item-name">Adobe CC</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span class="saving-item-tag flagged">Duplicate</span>
+              <span class="saving-amount">$55/mo</span>
+            </div>
+          </div>
+          <div class="hero-card-total">
+            <span class="hero-card-total-label">Total monthly savings</span>
+            <span class="hero-card-total-amount">$133</span>
+          </div>
+        </div>
+        <div class="hero-float-badge left">
+          <span class="badge-mint">↓ 41%</span> avg. monthly spend
+        </div>
+        <div class="hero-float-badge top">
+          🔒 Private &amp; secure
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────── STATS ───────────── -->
+<div class="stats">
+  <div class="wrap">
+    <div class="stats-inner">
+      <div class="stat-item reveal">
+        <div class="stat-number">$<span>847</span></div>
+        <div class="stat-label">Average annual savings per user</div>
+      </div>
+      <div class="stat-item reveal reveal-delay-1">
+        <div class="stat-number"><span>2.4</span>k+</div>
+        <div class="stat-label">People using Costra this month</div>
+      </div>
+      <div class="stat-item reveal reveal-delay-2">
+        <div class="stat-number"><span>12</span>min</div>
+        <div class="stat-label">Average time to first results</div>
+      </div>
+      <div class="stat-item reveal reveal-delay-3">
+        <div class="stat-number"><span>94</span>%</div>
+        <div class="stat-label">Users find at least one saving</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ───────────── HOW IT WORKS ───────────── -->
+<section class="section how" id="how-it-works">
+  <div class="wrap">
+    <div class="section-header">
+      <p class="label reveal">How it works</p>
+      <h2 class="display-lg reveal reveal-delay-1">Three steps to <span class="grad-mint">real savings</span></h2>
+      <p class="body-lg reveal reveal-delay-2">No spreadsheets. No hours of research. Just upload what you have and let Costra do the work.</p>
+    </div>
+    <div class="how-steps" style="position:relative">
+      <div class="how-connector"></div>
+      <div class="step-card reveal">
+        <div class="step-number">01</div>
+        <div class="step-icon">📤</div>
+        <h3 class="step-title">Upload your bills</h3>
+        <p class="step-desc">Drag and drop photos of bills, subscription screenshots, receipts, or bank statements. Any format works — JPG, PNG, PDF, or plain screenshots.</p>
+      </div>
+      <div class="step-card reveal reveal-delay-2">
+        <div class="step-number">02</div>
+        <div class="step-icon">🤖</div>
+        <h3 class="step-title">Costra analyzes</h3>
+        <p class="step-desc">Our AI reads every line, flags duplicate services, spots overpriced plans, catches hidden fees, and researches cheaper alternatives available right now.</p>
+      </div>
+      <div class="step-card reveal reveal-delay-4">
+        <div class="step-number">03</div>
+        <div class="step-icon">💸</div>
+        <h3 class="step-title">You keep the savings</h3>
+        <p class="step-desc">Receive a clear, plain-English report with exactly what to cancel, switch, or negotiate. Act on our findings in minutes, not hours.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────── AI SCANNER ───────────── -->
+<section class="section scanner" id="scanner">
+  <div class="wrap">
+    <div class="scanner-inner">
+      <div class="scanner-content">
+        <p class="label reveal">AI Scanner</p>
+        <h2 class="display-lg reveal reveal-delay-1">The smartest way to <span class="grad-mint">review expenses</span></h2>
+        <p class="body-lg reveal reveal-delay-2">Costra's scanner reads and understands your bills the way a financial expert would — then finds every possible place to save.</p>
+        <div class="scanner-features">
+          <div class="scanner-feature reveal reveal-delay-2">
+            <div class="scanner-feature-icon">🧾</div>
+            <div class="scanner-feature-text">
+              <h4>Bill &amp; statement reader</h4>
+              <p>Reads utility bills, subscription receipts, and bank statements. No manual data entry needed.</p>
+            </div>
+          </div>
+          <div class="scanner-feature reveal reveal-delay-3">
+            <div class="scanner-feature-icon">🔎</div>
+            <div class="scanner-feature-text">
+              <h4>Hidden fee detection</h4>
+              <p>Catches obscure charges buried in fine print — maintenance fees, auto-renewal traps, unused add-ons.</p>
+            </div>
+          </div>
+          <div class="scanner-feature reveal reveal-delay-4">
+            <div class="scanner-feature-icon">💡</div>
+            <div class="scanner-feature-text">
+              <h4>Alternative plan finder</h4>
+              <p>Researches current market rates and recommends cheaper providers or plan downgrades with real savings estimates.</p>
+            </div>
+          </div>
+          <div class="scanner-feature reveal reveal-delay-5">
+            <div class="scanner-feature-icon">🔒</div>
+            <div class="scanner-feature-text">
+              <h4>Privacy-first by design</h4>
+              <p>Your documents are analyzed securely and never shared. We delete uploaded files within 24 hours.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="reveal reveal-delay-2">
+        <div class="upload-panel">
+          <div class="upload-zone" id="dropZone">
+            <span class="upload-icon">📂</span>
+            <h3>Drop your files here</h3>
+            <p>Drag and drop bills, screenshots, or documents</p>
+            <label for="fileInput">
+              <a class="btn btn-primary btn-sm" style="display:inline-flex;cursor:pointer">
+                Browse files
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M3 5l4-4 4 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </a>
+            </label>
+            <input type="file" id="fileInput" class="upload-input" multiple accept="image/*,.pdf">
+            <div class="upload-types">
+              <span class="upload-type-chip">JPG / PNG</span>
+              <span class="upload-type-chip">PDF</span>
+              <span class="upload-type-chip">Screenshots</span>
+              <span class="upload-type-chip">Receipts</span>
+            </div>
+          </div>
+          <div class="upload-divider">or paste a link to your statement</div>
+          <div style="display:flex;gap:8px">
+            <input type="url" class="form-input" placeholder="https://..." style="flex:1">
+            <button class="btn btn-ghost" style="flex-shrink:0;border-radius:var(--radius-sm)">Scan</button>
+          </div>
+          <div class="scan-result-preview" style="margin-top:24px">
+            <div class="scan-result-header">
+              <div class="scan-result-header-left">
+                <span class="status-dot"></span>
+                <span>Live analysis preview</span>
+              </div>
+              <span style="font-size:12px;color:var(--ink-3)">3 findings</span>
+            </div>
+            <div class="scan-result-rows">
+              <div class="scan-row">
+                <div class="scan-row-left">
+                  <span class="scan-row-icon">📺</span>
+                  <div>
+                    <div class="scan-row-label">Streaming bundle</div>
+                    <div class="scan-row-sub">Netflix + Hulu + Disney+</div>
+                  </div>
+                </div>
+                <span class="scan-badge save">Save $14/mo</span>
+              </div>
+              <div class="scan-row">
+                <div class="scan-row-left">
+                  <span class="scan-row-icon">💪</span>
+                  <div>
+                    <div class="scan-row-label">Gym membership</div>
+                    <div class="scan-row-sub">Last used 4 months ago</div>
+                  </div>
+                </div>
+                <span class="scan-badge flag">Cancel → $49/mo</span>
+              </div>
+              <div class="scan-row">
+                <div class="scan-row-left">
+                  <span class="scan-row-icon">📱</span>
+                  <div>
+                    <div class="scan-row-label">Phone plan</div>
+                    <div class="scan-row-sub">Overpaying vs. current offers</div>
+                  </div>
+                </div>
+                <span class="scan-badge watch">Review → $18/mo</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────── SAMPLE RESULTS ───────────── -->
+<section class="section results" id="results">
+  <div class="wrap">
+    <div class="section-header">
+      <p class="label reveal">Real findings</p>
+      <h2 class="display-lg reveal reveal-delay-1">What Costra finds <span class="grad-warm">for people like you</span></h2>
+      <p class="body-lg reveal reveal-delay-2">These are the kinds of savings our users discover every day. Small leaks add up to hundreds a year.</p>
+    </div>
+    <div class="results-grid">
+      <div class="result-card reveal">
+        <div class="result-card-top">
+          <span class="result-card-emoji">📺</span>
+          <span class="result-tag savings">Alternative plan</span>
+        </div>
+        <div class="result-card-name">Streaming overlap</div>
+        <div class="result-card-desc">Subscribed to Netflix, Hulu, and Max with content overlap. Switching to a bundle and cutting one service saves immediately.</div>
+        <div class="result-card-divider"></div>
+        <div class="result-card-saving">
+          <span class="result-card-saving-amount">$19</span>
+          <span class="result-card-saving-period">/month</span>
+        </div>
+        <div class="result-card-saving-label">est. monthly savings</div>
+      </div>
+      <div class="result-card reveal reveal-delay-1">
+        <div class="result-card-top">
+          <span class="result-card-emoji">🏋️</span>
+          <span class="result-tag duplicate">Unused service</span>
+        </div>
+        <div class="result-card-name">Forgotten gym membership</div>
+        <div class="result-card-desc">Auto-renewing gym subscription with zero visits in the past 6 months. A quick cancellation call recovers this completely.</div>
+        <div class="result-card-divider"></div>
+        <div class="result-card-saving">
+          <span class="result-card-saving-amount">$49</span>
+          <span class="result-card-saving-period">/month</span>
+        </div>
+        <div class="result-card-saving-label">est. monthly savings</div>
+      </div>
+      <div class="result-card reveal reveal-delay-2">
+        <div class="result-card-top">
+          <span class="result-card-emoji">🌐</span>
+          <span class="result-tag overpriced">Overpriced plan</span>
+        </div>
+        <div class="result-card-name">Internet overpay</div>
+        <div class="result-card-desc">Current plan is $20/mo above the current promotional rate from the same provider. A 10-minute call gets the lower rate applied.</div>
+        <div class="result-card-divider"></div>
+        <div class="result-card-saving">
+          <span class="result-card-saving-amount">$20</span>
+          <span class="result-card-saving-period">/month</span>
+        </div>
+        <div class="result-card-saving-label">est. monthly savings</div>
+      </div>
+      <div class="result-card reveal reveal-delay-1">
+        <div class="result-card-top">
+          <span class="result-card-emoji">☁️</span>
+          <span class="result-tag duplicate">Duplicate charge</span>
+        </div>
+        <div class="result-card-name">Cloud storage double-bill</div>
+        <div class="result-card-desc">Paying for both iCloud and Google One at full price with combined storage that could fit on one plan at half the cost.</div>
+        <div class="result-card-divider"></div>
+        <div class="result-card-saving">
+          <span class="result-card-saving-amount">$11</span>
+          <span class="result-card-saving-period">/month</span>
+        </div>
+        <div class="result-card-saving-label">est. monthly savings</div>
+      </div>
+      <div class="result-card reveal reveal-delay-2">
+        <div class="result-card-top">
+          <span class="result-card-emoji">📱</span>
+          <span class="result-tag overpriced">Better rate available</span>
+        </div>
+        <div class="result-card-name">Mobile plan upgrade trap</div>
+        <div class="result-card-desc">On a legacy carrier plan paying $85/mo for 10GB. Current MVNOs offer 50GB unlimited for $25. No contract required.</div>
+        <div class="result-card-divider"></div>
+        <div class="result-card-saving">
+          <span class="result-card-saving-amount">$60</span>
+          <span class="result-card-saving-period">/month</span>
+        </div>
+        <div class="result-card-saving-label">est. monthly savings</div>
+      </div>
+      <div class="result-card reveal reveal-delay-3">
+        <div class="result-card-top">
+          <span class="result-card-emoji">🎵</span>
+          <span class="result-tag savings">Family plan switch</span>
+        </div>
+        <div class="result-card-name">Music streaming x3</div>
+        <div class="result-card-desc">Three household members on separate music subscriptions. Switching to a family plan cuts the combined bill by more than half.</div>
+        <div class="result-card-divider"></div>
+        <div class="result-card-saving">
+          <span class="result-card-saving-amount">$23</span>
+          <span class="result-card-saving-period">/month</span>
+        </div>
+        <div class="result-card-saving-label">est. monthly savings</div>
+      </div>
+    </div>
+    <div class="savings-banner reveal">
+      <div class="savings-banner-left">
+        <h3>Average Costra user saves</h3>
+        <p>Across subscriptions, utilities, phone, internet, and more.</p>
+      </div>
+      <div class="savings-banner-right">
+        <span class="savings-banner-amount">$847</span>
+        <span class="savings-banner-period">/year</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────── FEATURES ───────────── -->
+<section class="section features">
+  <div class="wrap">
+    <div class="section-header">
+      <p class="label reveal">Everything you need</p>
+      <h2 class="display-lg reveal reveal-delay-1">Built for real people, <span class="grad-mint">real savings</span></h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <div class="feature-card-icon mint">🧠</div>
+        <h4>AI-powered analysis</h4>
+        <p>Trained on thousands of bill formats, our AI reads and understands documents the way a savings expert would.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-card-icon gold">⚡</div>
+        <h4>Fast turnaround</h4>
+        <p>Most reports are ready in under 15 minutes. No waiting days for a consultant to get back to you.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="feature-card-icon blue">📊</div>
+        <h4>Plain-English reports</h4>
+        <p>No jargon, no ambiguity. Each finding explains what to do, why, and exactly how much you'll save.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-card-icon mint">🔄</div>
+        <h4>Subscription tracking</h4>
+        <p>Upload once and Costra keeps track of your recurring charges, alerting you to price hikes and renewal traps.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="feature-card-icon gold">🤝</div>
+        <h4>Human review option</h4>
+        <p>Complex situations get a real expert review layered on top of the AI analysis. Always available on request.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-3">
+        <div class="feature-card-icon blue">📤</div>
+        <h4>Any format accepted</h4>
+        <p>JPG, PNG, PDF, or a screenshot from your phone — Costra reads it all without requiring any special format.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────── ABOUT ───────────── -->
+<section class="section about" id="about">
+  <div class="wrap">
+    <div class="about-inner">
+      <div class="about-visual">
+        <div class="about-visual-card">
+          <div class="about-visual-card-title">Costra roadmap</div>
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-dot active">✓</div>
+              <div class="timeline-text">
+                <h4>Manual savings audit</h4>
+                <p>Upload bills, get a clear savings report within minutes. Running now.</p>
+                <span class="timeline-chip live">Live now</span>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot active">✓</div>
+              <div class="timeline-text">
+                <h4>AI bill reader</h4>
+                <p>Automatic document parsing and line-item analysis.</p>
+                <span class="timeline-chip live">Live now</span>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot future">◦</div>
+              <div class="timeline-text">
+                <h4>Bank account connection</h4>
+                <p>Securely link accounts for continuous automatic monitoring.</p>
+                <span class="timeline-chip coming">Coming soon</span>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot future">◦</div>
+              <div class="timeline-text">
+                <h4>Negotiation concierge</h4>
+                <p>We make the calls and negotiate lower rates on your behalf.</p>
+                <span class="timeline-chip coming">Coming soon</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="about-content">
+        <p class="label reveal">About Costra</p>
+        <h2 class="display-lg reveal reveal-delay-1">Your personal <span class="grad-mint">savings concierge</span></h2>
+        <p class="body-lg reveal reveal-delay-2">Most people overpay on bills, subscriptions, and services every single month — not because they want to, but because reviewing everything takes time they don't have. Costra fixes that.</p>
+        <div class="about-values">
+          <div class="about-value reveal reveal-delay-2">
+            <div class="about-value-check">✓</div>
+            <p><strong>No financial expertise required.</strong> If you can take a screenshot, you can use Costra.</p>
+          </div>
+          <div class="about-value reveal reveal-delay-3">
+            <div class="about-value-check">✓</div>
+            <p><strong>Built for everyday people.</strong> Students, families, renters, and working adults — not just financial nerds.</p>
+          </div>
+          <div class="about-value reveal reveal-delay-4">
+            <div class="about-value-check">✓</div>
+            <p><strong>We grow with you.</strong> Costra starts as a savings audit and is expanding into full financial concierge services.</p>
+          </div>
+        </div>
+        <a href="#signup" class="btn btn-primary reveal reveal-delay-4">Get your free savings report</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────── TESTIMONIALS ───────────── -->
+<section class="section testimonials" id="testimonials">
+  <div class="wrap">
+    <div class="section-header">
+      <p class="label reveal">Real people, real savings</p>
+      <h2 class="display-lg reveal reveal-delay-1">What our users <span class="grad-mint">are saying</span></h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card reveal">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-quote">I uploaded 6 screenshots in 3 minutes. Costra found a <em>$61/month gym charge I forgot existed</em> and a cheaper phone plan. Paid for itself instantly.</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div class="testimonial-author">
+            <div class="testimonial-avatar" style="background:#22d3a5;color:#07090f">S</div>
+            <div>
+              <div class="testimonial-name">Sarah M.</div>
+              <div class="testimonial-meta">College student, Chicago</div>
+            </div>
+          </div>
+          <div class="saving-pill">💸 $82/mo saved</div>
+        </div>
+      </div>
+      <div class="testimonial-card reveal reveal-delay-1">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-quote">As a family of four, our subscriptions had completely gotten away from us. Costra found <em>three services we were double-paying for</em>. Unbelievable.</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div class="testimonial-author">
+            <div class="testimonial-avatar" style="background:#f5c842;color:#07090f">J</div>
+            <div>
+              <div class="testimonial-name">James T.</div>
+              <div class="testimonial-meta">Father of two, Austin TX</div>
+            </div>
+          </div>
+          <div class="saving-pill">💸 $143/mo saved</div>
+        </div>
+      </div>
+      <div class="testimonial-card reveal reveal-delay-2">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-quote">I thought I was already being careful with money. Costra <em>found $54/month I was leaving on the table</em> without even realizing it. Eye-opening.</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div class="testimonial-author">
+            <div class="testimonial-avatar" style="background:#a855f7;color:#fff">A</div>
+            <div>
+              <div class="testimonial-name">Anika R.</div>
+              <div class="testimonial-meta">Freelancer, New York</div>
+            </div>
+          </div>
+          <div class="saving-pill">💸 $54/mo saved</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────── FAQ ───────────── -->
+<section class="section faq" id="faq">
+  <div class="wrap">
+    <div class="section-header">
+      <p class="label reveal">FAQ</p>
+      <h2 class="display-lg reveal reveal-delay-1">Questions <span class="grad-mint">answered</span></h2>
+    </div>
+    <div class="faq-inner">
+      <div class="faq-list">
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            What kinds of documents can I upload?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              Costra accepts photos of paper bills, screenshots of online subscriptions, PDF statements, receipts, bank statements, credit card statements, and any document showing charges or recurring payments. If you can see a charge on it, we can read it.
+            </div>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            Is my financial data safe?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              Yes. Your documents are encrypted in transit and at rest. We analyze them to extract spending data, then delete the original files within 24 hours. We never sell your data or share it with third parties. We also never ask for login credentials or account access.
+            </div>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            How quickly will I get my results?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              Most reports are ready in 10–15 minutes. For larger sets of documents or complex cases requesting a human review layer, it can take up to a few hours. You'll receive an email as soon as your report is ready.
+            </div>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            How much does Costra cost?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              Your first savings report is completely free. After that, we offer a simple monthly plan. Given that the average user saves $847/year, Costra pays for itself many times over. See our pricing page for current plans.
+            </div>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            Do I need to connect my bank account?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              No — not right now. Costra is designed to work entirely from uploaded documents. You upload what you have, we analyze it. Bank and card connections are an optional feature coming later for users who want continuous monitoring.
+            </div>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            What if I don't have all my bills handy?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              Upload whatever you have. Even a few screenshots can surface meaningful savings. Most email inboxes have confirmation emails from subscription services — those work too. You don't need everything to get started.
+            </div>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            Does Costra actually make the changes, or just find them?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              Right now, Costra identifies every saving opportunity and tells you exactly how to act on it. A human concierge who makes calls and cancels services on your behalf is coming soon. Until then, we give you everything you need to do it yourself in minutes.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────── SIGNUP ───────────── -->
+<section class="section signup" id="signup">
+  <div class="wrap">
+    <div class="signup-inner">
+      <div class="signup-content">
+        <p class="label reveal">Get started free</p>
+        <h2 class="display-lg reveal reveal-delay-1">Your first report is <span class="grad-mint">on us</span></h2>
+        <p class="body-lg reveal reveal-delay-2">Upload your first bill and see exactly how much you've been overpaying. No credit card required to get your first savings report.</p>
+        <div class="signup-perks">
+          <div class="signup-perk reveal reveal-delay-2">Free first savings report — no card needed</div>
+          <div class="signup-perk reveal reveal-delay-3">Results in under 15 minutes</div>
+          <div class="signup-perk reveal reveal-delay-3">Works with any bill, screenshot, or document</div>
+          <div class="signup-perk reveal reveal-delay-4">Your data is encrypted and never sold</div>
+          <div class="signup-perk reveal reveal-delay-4">Cancel or pause anytime</div>
+        </div>
+        <div class="reveal reveal-delay-4" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <div style="display:flex;gap:-8px">
+            <span style="width:32px;height:32px;border-radius:50%;background:#22d3a5;color:#07090f;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;border:2px solid var(--bg-2)">S</span>
+            <span style="width:32px;height:32px;border-radius:50%;background:#f5c842;color:#07090f;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;border:2px solid var(--bg-2);margin-left:-10px">J</span>
+            <span style="width:32px;height:32px;border-radius:50%;background:#a855f7;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;border:2px solid var(--bg-2);margin-left:-10px">A</span>
+          </div>
+          <span style="font-size:13px;color:var(--ink-3)">2,400+ people started saving this month</span>
+        </div>
+      </div>
+      <div class="reveal reveal-delay-2">
+        <div class="signup-form-panel">
+          <div class="signup-form-title">Start your free report</div>
+          <div class="signup-form-sub">Takes 2 minutes to set up. Results in 15.</div>
+          <form onsubmit="handleSignup(event)">
+            <div class="form-group">
+              <label class="form-label" for="firstName">First name</label>
+              <input type="text" id="firstName" class="form-input" placeholder="Your first name" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="email">Email address</label>
+              <input type="email" id="email" class="form-input" placeholder="you@example.com" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="monthlySpend">Estimated monthly subscriptions</label>
+              <select id="monthlySpend" class="form-select">
+                <option value="">Select a range...</option>
+                <option>Less than $50/month</option>
+                <option>$50 – $150/month</option>
+                <option>$150 – $300/month</option>
+                <option>More than $300/month</option>
+                <option>Not sure</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary form-btn">
+              Get my free savings report
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <p class="form-note">No credit card required. Unsubscribe anytime.</p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────── CTA BANNER ───────────── -->
+<div class="cta-banner">
+  <div class="wrap" style="position:relative;z-index:1">
+    <p class="label reveal" style="margin-bottom:16px">Ready to stop overpaying?</p>
+    <h2 class="display-lg reveal reveal-delay-1">Upload your first bill.<br>Find your first saving.</h2>
+    <p class="body-lg reveal reveal-delay-2">The average Costra user saves $847 a year. It takes under 15 minutes to find out what you've been missing.</p>
+    <div class="cta-banner-actions reveal reveal-delay-3">
+      <a href="#signup" class="btn btn-primary btn-lg">Start free — no card needed</a>
+      <a href="#scanner" class="btn btn-ghost btn-lg">See the scanner</a>
+    </div>
+  </div>
+</div>
+
+<!-- ───────────── FOOTER ───────────── -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a href="#" class="nav-logo" style="display:block;margin-bottom:16px">costra<span style="color:var(--mint)">.</span></a>
+        <p>Your personal savings concierge. Upload your bills and find out exactly where your money is going — and how to keep more of it.</p>
+        <div class="footer-social">
+          <a class="social-link" href="#" aria-label="Twitter">𝕏</a>
+          <a class="social-link" href="#" aria-label="Instagram">📷</a>
+          <a class="social-link" href="#" aria-label="LinkedIn">in</a>
+          <a class="social-link" href="#" aria-label="TikTok">♪</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Product</h5>
+        <ul>
+          <li><a href="#how-it-works">How it works</a></li>
+          <li><a href="#scanner">AI Scanner</a></li>
+          <li><a href="#results">Sample results</a></li>
+          <li><a href="#signup">Pricing</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="#about">About us</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Legal</h5>
+        <ul>
+          <li><a href="#">Privacy policy</a></li>
+          <li><a href="#">Terms of service</a></li>
+          <li><a href="#">Security</a></li>
+          <li><a href="#">Cookie policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-copyright">© 2025 Costra. All rights reserved.</p>
+      <div class="footer-legal">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Security</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Nav scroll effect
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 20);
+}, { passive: true });
+
+// Mobile nav
+const menuBtn = document.getElementById('menuBtn');
+const mobileNav = document.getElementById('mobileNav');
+menuBtn.addEventListener('click', () => {
+  mobileNav.classList.toggle('open');
+  document.body.style.overflow = mobileNav.classList.contains('open') ? 'hidden' : '';
+});
+function closeMobileNav() {
+  mobileNav.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Scroll reveal
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.12 });
+reveals.forEach(el => observer.observe(el));
+
+// FAQ accordion
+function toggleFaq(btn) {
+  const item = btn.closest('.faq-item');
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+// Upload drag-and-drop
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  const files = e.dataTransfer.files;
+  if (files.length) handleFiles(files);
+});
+fileInput.addEventListener('change', (e) => {
+  if (e.target.files.length) handleFiles(e.target.files);
+});
+function handleFiles(files) {
+  const names = Array.from(files).map(f => f.name).join(', ');
+  dropZone.querySelector('h3').textContent = `${files.length} file${files.length > 1 ? 's' : ''} ready`;
+  dropZone.querySelector('p').textContent = names.length > 50 ? names.slice(0, 50) + '…' : names;
+}
+
+// Signup form
+function handleSignup(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('button[type=submit]');
+  btn.textContent = 'Sending…';
+  btn.disabled = true;
+  setTimeout(() => {
+    btn.textContent = '✓ Check your email!';
+    btn.style.background = 'var(--mint)';
+    e.target.reset();
+    setTimeout(() => {
+      btn.textContent = 'Get my free savings report →';
+      btn.disabled = false;
+      btn.style.background = '';
+    }, 4000);
+  }, 1500);
+}
+
+// Animate stat counters when visible
+function animateCounter(el, target, prefix, suffix, duration) {
+  const start = performance.now();
+  const update = (now) => {
+    const progress = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const value = Math.round(eased * target);
+    el.innerHTML = prefix + value + suffix;
+    if (progress < 1) requestAnimationFrame(update);
+  };
+  requestAnimationFrame(update);
+}
+const statObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    const nums = entry.target.querySelectorAll('.stat-number');
+    nums.forEach(num => {
+      const text = num.textContent.trim();
+      const match = text.match(/^([\$]?)([\d.]+)([k+%min]*)/);
+      if (!match) return;
+      const prefix = match[1];
+      const val = parseFloat(match[2]);
+      const suffix = match[3];
+      if (suffix.includes('.')) return;
+      animateCounter(num.querySelector('span') || num, val, prefix, suffix, 1400);
+    });
+    statObserver.unobserve(entry.target);
+  });
+}, { threshold: 0.5 });
+document.querySelectorAll('.stats-inner').forEach(el => statObserver.observe(el));
+</script>
+</body>
+</html>
