@@ -1406,9 +1406,194 @@ ul, ol { list-style: none; }
   .cta-banner-actions { flex-direction: column; }
   .cta-banner-actions .btn { width: 100%; justify-content: center; }
 }
+
+/* ── Scroll progress bar ── */
+#progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  width: 0%;
+  z-index: 200;
+  background: linear-gradient(90deg, var(--mint), #00d4ff 50%, var(--gold));
+  pointer-events: none;
+  transition: width 0.08s linear;
+}
+
+/* ── Custom cursor (desktop only) ── */
+#cursor { position: fixed; pointer-events: none; z-index: 9999; top: 0; left: 0; }
+#cursor-dot {
+  position: absolute;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--mint);
+  top: -3px; left: -3px;
+  box-shadow: 0 0 10px var(--mint-glow);
+}
+#cursor-ring {
+  position: absolute;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(29,255,160,0.45);
+  top: -14px; left: -14px;
+  transition: width 0.25s var(--ease), height 0.25s var(--ease),
+              top 0.25s var(--ease), left 0.25s var(--ease),
+              border-color 0.25s, background 0.25s;
+}
+body.cur-hover #cursor-ring {
+  width: 52px; height: 52px;
+  top: -26px; left: -26px;
+  border-color: rgba(29,255,160,0.7);
+  background: rgba(29,255,160,0.05);
+}
+@media (hover: none) { #cursor { display: none; } }
+
+/* ── Hero animated blobs ── */
+.hero-blobs {
+  position: absolute; inset: 0;
+  overflow: hidden; pointer-events: none; z-index: 0;
+}
+.blob {
+  position: absolute; border-radius: 50%;
+  filter: blur(90px); will-change: transform;
+}
+.blob-1 {
+  width: 560px; height: 560px;
+  background: radial-gradient(circle, rgba(29,255,160,0.18) 0%, transparent 70%);
+  top: -20%; left: -12%;
+  animation: blob1 20s ease-in-out infinite;
+}
+.blob-2 {
+  width: 420px; height: 420px;
+  background: radial-gradient(circle, rgba(0,212,255,0.14) 0%, transparent 70%);
+  top: 20%; right: -8%;
+  animation: blob2 25s ease-in-out infinite;
+}
+.blob-3 {
+  width: 320px; height: 320px;
+  background: radial-gradient(circle, rgba(245,200,66,0.09) 0%, transparent 70%);
+  bottom: 5%; left: 35%;
+  animation: blob3 18s ease-in-out infinite;
+}
+@keyframes blob1 {
+  0%,100% { transform: translate(0,0) scale(1); }
+  33%      { transform: translate(70px,-50px) scale(1.08); }
+  66%      { transform: translate(-40px,70px) scale(0.94); }
+}
+@keyframes blob2 {
+  0%,100% { transform: translate(0,0) scale(1); }
+  33%      { transform: translate(-60px,40px) scale(1.06); }
+  66%      { transform: translate(50px,-70px) scale(0.91); }
+}
+@keyframes blob3 {
+  0%,100% { transform: translate(0,0) scale(1); }
+  50%      { transform: translate(-50px,-40px) scale(1.12); }
+}
+
+/* ── Word-by-word hero reveal ── */
+.hero-title .word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  line-height: 1.05;
+}
+.hero-title .word-inner {
+  display: inline-block;
+  transform: translateY(110%) rotate(4deg);
+  transition: transform 0.75s var(--ease);
+}
+.hero-title.words-in .word-inner { transform: translateY(0) rotate(0deg); }
+
+/* ── Marquee ticker ── */
+.ticker {
+  overflow: hidden;
+  background: var(--bg-2);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 13px 0;
+}
+.ticker-track {
+  display: inline-flex;
+  animation: tickerRoll 28s linear infinite;
+  white-space: nowrap;
+}
+.ticker-track:hover { animation-play-state: paused; }
+.ticker-item {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 0 40px;
+  font-size: 13px; font-weight: 600; color: var(--ink-3);
+}
+.ticker-item em { color: var(--mint); font-style: normal; }
+.ticker-sep { color: var(--border-hi); }
+@keyframes tickerRoll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* ── Rotating gradient border on upload zone ── */
+@property --ang {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+.upload-zone {
+  position: relative;
+  isolation: isolate;
+}
+.upload-zone::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: calc(var(--radius) + 2px);
+  background: conic-gradient(
+    from var(--ang),
+    transparent 0%,
+    transparent 40%,
+    rgba(29,255,160,0.55) 50%,
+    rgba(0,212,255,0.55) 55%,
+    transparent 65%,
+    transparent 100%
+  );
+  animation: spinBorder 5s linear infinite;
+  z-index: -1;
+}
+.upload-zone::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  border-radius: var(--radius);
+  background: var(--bg-3);
+  z-index: -1;
+}
+@keyframes spinBorder { to { --ang: 360deg; } }
+
+/* ── 3D tilt cards ── */
+.tilt { transform-style: preserve-3d; will-change: transform; }
+
+/* ── Parallax hero card ── */
+#heroCard { will-change: transform; }
+
+/* ── Staggered slide-in for result cards ── */
+.result-card.reveal { transform: translateY(32px) scale(0.97); }
+.result-card.reveal.visible { transform: none; }
+
+/* ── Section number slot machine ── */
+.slot-num {
+  display: inline-block;
+  overflow: hidden;
+  height: 1.1em;
+  vertical-align: bottom;
+}
+.slot-num-inner {
+  display: flex;
+  flex-direction: column;
+  transition: transform 1.2s var(--ease);
+}
+.slot-num-inner span { line-height: 1.1; }
 </style>
 </head>
 <body>
+<div id="progress"></div>
+<div id="cursor"><div id="cursor-dot"></div><div id="cursor-ring"></div></div>
 
 <!-- ───────────── NAV ───────────── -->
 <nav class="nav" id="nav">
@@ -1440,6 +1625,11 @@ ul, ol { list-style: none; }
 
 <!-- ───────────── HERO ───────────── -->
 <section class="hero">
+  <div class="hero-blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
   <div class="wrap">
     <div class="hero-inner">
       <div class="hero-copy">
@@ -1447,10 +1637,12 @@ ul, ol { list-style: none; }
           <span class="hero-badge-dot"></span>
           AI-powered savings concierge
         </div>
-        <h1 class="display-xl hero-title">
-          Stop leaving<br>
-          money on<br>
-          <span class="grad-mint">the table.</span>
+        <h1 class="display-xl hero-title" id="heroTitle">
+          <span class="word"><span class="word-inner">Stop</span></span>
+          <span class="word"><span class="word-inner">leaving</span></span><br>
+          <span class="word"><span class="word-inner">money</span></span>
+          <span class="word"><span class="word-inner">on</span></span><br>
+          <span class="word grad-mint"><span class="word-inner">the table.</span></span>
         </h1>
         <p class="hero-sub">
           Upload your bills, subscriptions, and bank statements. Costra finds wasted spending, duplicate charges, and cheaper alternatives — in minutes.
@@ -1474,7 +1666,7 @@ ul, ol { list-style: none; }
         </div>
       </div>
       <div class="hero-visual">
-        <div class="hero-card">
+        <div class="hero-card" id="heroCard">
           <div class="hero-card-header">
             <div class="hero-card-icon">🔍</div>
             <div>
@@ -1539,6 +1731,37 @@ ul, ol { list-style: none; }
   </div>
 </section>
 
+<!-- ───────────── MARQUEE TICKER ───────────── -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track">
+    <span class="ticker-item">💸 Sarah saved <em>$82/mo</em> cancelling a forgotten gym</span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item">📺 James cut streaming spend by <em>$43/mo</em></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item">📱 Anika found a phone plan saving <em>$60/mo</em></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item">☁️ Marcus spotted a duplicate cloud charge worth <em>$22/mo</em></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item">🌐 Priya negotiated her internet down by <em>$20/mo</em></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item">🎵 The Chen family switched to a bundle — saved <em>$37/mo</em></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <!-- duplicate for seamless loop -->
+    <span class="ticker-item">💸 Sarah saved <em>$82/mo</em> cancelling a forgotten gym</span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item">📺 James cut streaming spend by <em>$43/mo</em></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item">📱 Anika found a phone plan saving <em>$60/mo</em></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item">☁️ Marcus spotted a duplicate cloud charge worth <em>$22/mo</em></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item">🌐 Priya negotiated her internet down by <em>$20/mo</em></span>
+    <span class="ticker-item ticker-sep">·</span>
+    <span class="ticker-item">🎵 The Chen family switched to a bundle — saved <em>$37/mo</em></span>
+    <span class="ticker-item ticker-sep">·</span>
+  </div>
+</div>
+
 <!-- ───────────── STATS ───────────── -->
 <div class="stats">
   <div class="wrap">
@@ -1573,7 +1796,7 @@ ul, ol { list-style: none; }
     </div>
     <div class="how-steps" style="position:relative">
       <div class="how-connector"></div>
-      <div class="step-card reveal">
+      <div class="step-card tilt reveal">
         <div class="step-number">01</div>
         <div class="step-icon">📤</div>
         <h3 class="step-title">Upload your bills</h3>
@@ -1715,7 +1938,7 @@ ul, ol { list-style: none; }
       <p class="body-lg reveal reveal-delay-2">These are the kinds of savings our users discover every day. Small leaks add up to hundreds a year.</p>
     </div>
     <div class="results-grid">
-      <div class="result-card reveal">
+      <div class="result-card tilt reveal">
         <div class="result-card-top">
           <span class="result-card-emoji">📺</span>
           <span class="result-tag savings">Alternative plan</span>
@@ -1821,7 +2044,7 @@ ul, ol { list-style: none; }
       <h2 class="display-lg reveal reveal-delay-1">Built for real people, <span class="grad-mint">real savings</span></h2>
     </div>
     <div class="features-grid">
-      <div class="feature-card reveal">
+      <div class="feature-card tilt reveal">
         <div class="feature-card-icon mint">🧠</div>
         <h4>AI-powered analysis</h4>
         <p>Trained on thousands of bill formats, our AI reads and understands documents the way a savings expert would.</p>
@@ -2194,13 +2417,24 @@ ul, ol { list-style: none; }
 </footer>
 
 <script>
-// Nav scroll effect
-const nav = document.getElementById('nav');
-window.addEventListener('scroll', () => {
-  nav.classList.toggle('scrolled', window.scrollY > 20);
-}, { passive: true });
+/* ── Scroll progress bar ── */
+const progressBar = document.getElementById('progress');
+function updateProgress() {
+  const scrolled = window.scrollY;
+  const max = document.body.scrollHeight - window.innerHeight;
+  progressBar.style.width = (scrolled / max * 100).toFixed(2) + '%';
+}
 
-// Mobile nav
+/* ── Nav scroll effect ── */
+const nav = document.getElementById('nav');
+function onScroll() {
+  nav.classList.toggle('scrolled', window.scrollY > 20);
+  updateProgress();
+  updateParallax();
+}
+window.addEventListener('scroll', onScroll, { passive: true });
+
+/* ── Mobile nav ── */
 const menuBtn = document.getElementById('menuBtn');
 const mobileNav = document.getElementById('mobileNav');
 menuBtn.addEventListener('click', () => {
@@ -2212,19 +2446,98 @@ function closeMobileNav() {
   document.body.style.overflow = '';
 }
 
-// Scroll reveal
-const reveals = document.querySelectorAll('.reveal');
-const observer = new IntersectionObserver((entries) => {
+/* ── Custom cursor ── */
+const cursorEl   = document.getElementById('cursor');
+const cursorDot  = document.getElementById('cursor-dot');
+const cursorRing = document.getElementById('cursor-ring');
+let cx = -100, cy = -100, rx = -100, ry = -100;
+let cursorVisible = false;
+
+document.addEventListener('mousemove', (e) => {
+  cx = e.clientX; cy = e.clientY;
+  if (!cursorVisible) {
+    cursorVisible = true;
+    cursorEl.style.opacity = '1';
+  }
+  cursorDot.style.transform = `translate(${cx}px,${cy}px)`;
+  // ring lags smoothly via rAF loop below
+});
+document.addEventListener('mouseleave', () => { cursorEl.style.opacity = '0'; cursorVisible = false; });
+document.addEventListener('mouseenter', () => { cursorEl.style.opacity = '1'; cursorVisible = true; });
+
+// Hover enlargement for interactive elements
+document.querySelectorAll('a, button, .faq-question, .tilt').forEach(el => {
+  el.addEventListener('mouseenter', () => document.body.classList.add('cur-hover'));
+  el.addEventListener('mouseleave', () => document.body.classList.remove('cur-hover'));
+});
+
+// Ring follows with lag
+(function ringLoop() {
+  rx += (cx - rx) * 0.12;
+  ry += (cy - ry) * 0.12;
+  cursorRing.style.transform = `translate(${rx}px,${ry}px)`;
+  requestAnimationFrame(ringLoop);
+})();
+
+/* ── Hero word-by-word animation ── */
+const heroTitle = document.getElementById('heroTitle');
+if (heroTitle) {
+  setTimeout(() => heroTitle.classList.add('words-in'), 120);
+  // Stagger each word
+  heroTitle.querySelectorAll('.word-inner').forEach((w, i) => {
+    w.style.transitionDelay = `${i * 0.1}s`;
+  });
+}
+
+/* ── Hero card parallax on scroll ── */
+const heroCard = document.getElementById('heroCard');
+function updateParallax() {
+  if (!heroCard) return;
+  const y = window.scrollY;
+  heroCard.style.transform = `translateY(${y * 0.18}px)`;
+}
+
+/* ── Scroll reveal (with directional variants) ── */
+const allReveals = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale');
+const revealObserver = new IntersectionObserver((entries) => {
   entries.forEach(e => {
     if (e.isIntersecting) {
       e.target.classList.add('visible');
-      observer.unobserve(e.target);
+      revealObserver.unobserve(e.target);
     }
   });
-}, { threshold: 0.12 });
-reveals.forEach(el => observer.observe(el));
+}, { threshold: 0.10 });
+allReveals.forEach(el => revealObserver.observe(el));
 
-// FAQ accordion
+/* ── 3D tilt on cards ── */
+document.querySelectorAll('.tilt').forEach(card => {
+  card.addEventListener('mousemove', (e) => {
+    const rect = card.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) / rect.width  - 0.5;  // -0.5 → 0.5
+    const my = (e.clientY - rect.top)  / rect.height - 0.5;
+    card.style.transform = `perspective(700px) rotateX(${-my * 10}deg) rotateY(${mx * 10}deg) scale(1.03)`;
+    card.style.boxShadow = `${-mx * 20}px ${my * 20}px 40px rgba(0,0,0,0.25), 0 0 40px rgba(29,255,160,0.06)`;
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = '';
+    card.style.boxShadow = '';
+  });
+});
+
+/* ── Magnetic CTA buttons ── */
+document.querySelectorAll('.btn-primary, .btn-ghost').forEach(btn => {
+  btn.addEventListener('mousemove', (e) => {
+    const rect = btn.getBoundingClientRect();
+    const mx = (e.clientX - rect.left - rect.width  / 2) * 0.25;
+    const my = (e.clientY - rect.top  - rect.height / 2) * 0.25;
+    btn.style.transform = `translate(${mx}px,${my}px) translateY(-2px)`;
+  });
+  btn.addEventListener('mouseleave', () => {
+    btn.style.transform = '';
+  });
+});
+
+/* ── FAQ accordion ── */
 function toggleFaq(btn) {
   const item = btn.closest('.faq-item');
   const isOpen = item.classList.contains('open');
@@ -2232,16 +2545,15 @@ function toggleFaq(btn) {
   if (!isOpen) item.classList.add('open');
 }
 
-// Upload drag-and-drop
-const dropZone = document.getElementById('dropZone');
+/* ── Upload drag-and-drop ── */
+const dropZone  = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
-dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('dragover',  (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', ()  => dropZone.classList.remove('drag-over'));
 dropZone.addEventListener('drop', (e) => {
   e.preventDefault();
   dropZone.classList.remove('drag-over');
-  const files = e.dataTransfer.files;
-  if (files.length) handleFiles(files);
+  if (e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
 });
 fileInput.addEventListener('change', (e) => {
   if (e.target.files.length) handleFiles(e.target.files);
@@ -2249,57 +2561,63 @@ fileInput.addEventListener('change', (e) => {
 function handleFiles(files) {
   const names = Array.from(files).map(f => f.name).join(', ');
   dropZone.querySelector('h3').textContent = `${files.length} file${files.length > 1 ? 's' : ''} ready`;
-  dropZone.querySelector('p').textContent = names.length > 50 ? names.slice(0, 50) + '…' : names;
+  dropZone.querySelector('p').textContent  = names.length > 50 ? names.slice(0, 50) + '…' : names;
 }
 
-// Signup form
+/* ── Signup form ── */
 function handleSignup(e) {
   e.preventDefault();
   const btn = e.target.querySelector('button[type=submit]');
   btn.textContent = 'Sending…';
   btn.disabled = true;
   setTimeout(() => {
-    btn.textContent = '✓ Check your email!';
-    btn.style.background = 'var(--mint)';
+    btn.innerHTML = '✓ Check your email!';
     e.target.reset();
     setTimeout(() => {
-      btn.textContent = 'Get my free savings report →';
+      btn.innerHTML = 'Get my free savings report <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>';
       btn.disabled = false;
-      btn.style.background = '';
     }, 4000);
   }, 1500);
 }
 
-// Animate stat counters when visible
-function animateCounter(el, target, prefix, suffix, duration) {
+/* ── Animated stat counters (roll-up on scroll) ── */
+function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+function animateCounter(spanEl, target, duration) {
   const start = performance.now();
   const update = (now) => {
-    const progress = Math.min((now - start) / duration, 1);
-    const eased = 1 - Math.pow(1 - progress, 3);
-    const value = Math.round(eased * target);
-    el.innerHTML = prefix + value + suffix;
-    if (progress < 1) requestAnimationFrame(update);
+    const t = Math.min((now - start) / duration, 1);
+    spanEl.textContent = Math.round(easeOutCubic(t) * target);
+    if (t < 1) requestAnimationFrame(update);
   };
   requestAnimationFrame(update);
 }
 const statObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (!entry.isIntersecting) return;
-    const nums = entry.target.querySelectorAll('.stat-number');
-    nums.forEach(num => {
-      const text = num.textContent.trim();
-      const match = text.match(/^([\$]?)([\d.]+)([k+%min]*)/);
-      if (!match) return;
-      const prefix = match[1];
-      const val = parseFloat(match[2]);
-      const suffix = match[3];
-      if (suffix.includes('.')) return;
-      animateCounter(num.querySelector('span') || num, val, prefix, suffix, 1400);
+    entry.target.querySelectorAll('.stat-number').forEach(num => {
+      const span = num.querySelector('span');
+      if (!span) return;
+      const val = parseFloat(span.textContent.replace(/[^0-9.]/g, ''));
+      if (!isNaN(val)) animateCounter(span, val, 1600);
     });
     statObserver.unobserve(entry.target);
   });
 }, { threshold: 0.5 });
 document.querySelectorAll('.stats-inner').forEach(el => statObserver.observe(el));
+
+/* ── Saving items in hero card cycle endlessly ── */
+const savingItems = document.querySelectorAll('.saving-item');
+let activeIdx = 0;
+function cycleItems() {
+  savingItems.forEach((item, i) => {
+    item.style.opacity     = i === activeIdx ? '1' : '0.45';
+    item.style.transform   = i === activeIdx ? 'translateX(4px)' : '';
+    item.style.transition  = 'opacity 0.5s, transform 0.5s';
+  });
+  activeIdx = (activeIdx + 1) % savingItems.length;
+}
+setInterval(cycleItems, 1800);
+cycleItems();
 </script>
 </body>
 </html>
