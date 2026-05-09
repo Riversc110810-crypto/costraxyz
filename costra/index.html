@@ -44,18 +44,21 @@
    Reset
 ───────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; cursor: none; }
 body {
   font-family: var(--sans);
   background: var(--bg);
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
-  line-height: 1.6;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.7;
   overflow-x: hidden;
+  cursor: none;
 }
+*, a, button, input, select, label { cursor: none !important; }
 a { color: inherit; text-decoration: none; }
 img { max-width: 100%; display: block; }
-button { cursor: pointer; font-family: inherit; border: none; }
+button { font-family: inherit; border: none; }
 ul, ol { list-style: none; }
 
 /* ─────────────────────────────────────────
@@ -74,35 +77,49 @@ ul, ol { list-style: none; }
 ───────────────────────────────────────── */
 .display-xl {
   font-family: var(--display);
-  font-size: clamp(44px, 7vw, 88px);
+  font-size: clamp(42px, 6.5vw, 82px);
   font-weight: 800;
-  line-height: 1.02;
+  line-height: 1.06;
   letter-spacing: -0.03em;
 }
 .display-lg {
   font-family: var(--display);
-  font-size: clamp(32px, 4.5vw, 56px);
+  font-size: clamp(30px, 4vw, 52px);
   font-weight: 700;
-  line-height: 1.1;
+  line-height: 1.15;
   letter-spacing: -0.025em;
 }
 .display-md {
   font-family: var(--display);
-  font-size: clamp(24px, 3vw, 36px);
+  font-size: clamp(22px, 2.8vw, 34px);
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.25;
   letter-spacing: -0.02em;
 }
-.body-lg { font-size: 18px; line-height: 1.65; color: var(--ink-2); }
-.body-md { font-size: 16px; line-height: 1.7; color: var(--ink-2); }
+/* Body text: larger, softer, more breathing room */
+.body-lg {
+  font-size: 19px;
+  line-height: 1.75;
+  color: var(--ink-2);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+.body-md {
+  font-size: 16px;
+  line-height: 1.78;
+  color: var(--ink-2);
+  letter-spacing: 0.01em;
+}
 .label {
   font-family: var(--display);
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--mint);
 }
+/* General paragraph rhythm */
+p + p { margin-top: 1em; }
 
 /* ─────────────────────────────────────────
    Buttons
@@ -1420,15 +1437,17 @@ ul, ol { list-style: none; }
 }
 
 /* ── Custom cursor (desktop only) ── */
-#cursor { position: fixed; pointer-events: none; z-index: 9999; top: 0; left: 0; }
+#cursor { position: fixed; pointer-events: none; z-index: 99999; top: 0; left: 0; }
 #cursor-dot {
   position: absolute;
-  width: 6px; height: 6px;
+  width: 8px; height: 8px;
   border-radius: 50%;
   background: var(--mint);
-  top: -3px; left: -3px;
-  box-shadow: 0 0 10px var(--mint-glow);
+  top: -4px; left: -4px;
+  box-shadow: 0 0 12px var(--mint-glow), 0 0 4px rgba(232,146,58,0.9);
+  transition: transform 0.12s var(--ease);
 }
+body.cur-hover #cursor-dot { transform: scale(1.6); }
 #cursor-ring {
   position: absolute;
   width: 28px; height: 28px;
@@ -1445,7 +1464,10 @@ body.cur-hover #cursor-ring {
   border-color: rgba(29,255,160,0.7);
   background: rgba(29,255,160,0.05);
 }
-@media (hover: none) { #cursor { display: none; } }
+@media (hover: none) {
+  #cursor { display: none; }
+  html, body, *, a, button, input, select, label { cursor: auto !important; }
+}
 
 /* ── Hero animated blobs ── */
 .hero-blobs {
@@ -1489,19 +1511,18 @@ body.cur-hover #cursor-ring {
   50%      { transform: translate(-50px,-40px) scale(1.12); }
 }
 
-/* ── Word-by-word hero reveal ── */
-.hero-title .word {
-  display: inline-block;
+/* ── Hero title line-by-line reveal ── */
+.hero-title-line {
+  display: block;
   overflow: hidden;
-  vertical-align: bottom;
-  line-height: 1.05;
+  padding-bottom: 0.08em; /* prevent descender clip */
 }
-.hero-title .word-inner {
-  display: inline-block;
-  transform: translateY(110%) rotate(4deg);
-  transition: transform 0.75s var(--ease);
+.hero-title-line-inner {
+  display: block;
+  transform: translateY(108%);
+  transition: transform 0.8s var(--ease);
 }
-.hero-title.words-in .word-inner { transform: translateY(0) rotate(0deg); }
+.hero-title.lines-in .hero-title-line-inner { transform: translateY(0); }
 
 /* ── Marquee ticker ── */
 .ticker {
@@ -1756,11 +1777,9 @@ body.cur-hover #cursor-ring {
           AI-powered savings concierge
         </div>
         <h1 class="display-xl hero-title" id="heroTitle">
-          <span class="word"><span class="word-inner">Stop</span></span>
-          <span class="word"><span class="word-inner">leaving</span></span><br>
-          <span class="word"><span class="word-inner">money</span></span>
-          <span class="word"><span class="word-inner">on</span></span><br>
-          <span class="word grad-mint"><span class="word-inner">the table.</span></span>
+          <span class="hero-title-line"><span class="hero-title-line-inner" style="transition-delay:0.05s">Stop leaving</span></span>
+          <span class="hero-title-line"><span class="hero-title-line-inner" style="transition-delay:0.18s">money on</span></span>
+          <span class="hero-title-line"><span class="hero-title-line-inner grad-mint" style="transition-delay:0.31s">the table.</span></span>
         </h1>
         <p class="hero-sub">
           Upload your bills, subscriptions, and bank statements. Costra finds wasted spending, duplicate charges, and cheaper alternatives — in minutes.
@@ -2657,14 +2676,10 @@ document.querySelectorAll('a, button, .faq-question, .tilt').forEach(el => {
   requestAnimationFrame(ringLoop);
 })();
 
-/* ── Hero word-by-word animation ── */
+/* ── Hero title line-by-line animation ── */
 const heroTitle = document.getElementById('heroTitle');
 if (heroTitle) {
-  setTimeout(() => heroTitle.classList.add('words-in'), 120);
-  // Stagger each word
-  heroTitle.querySelectorAll('.word-inner').forEach((w, i) => {
-    w.style.transitionDelay = `${i * 0.1}s`;
-  });
+  setTimeout(() => heroTitle.classList.add('lines-in'), 80);
 }
 
 /* ── Hero card parallax on scroll ── */
