@@ -1,0 +1,1338 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Costra — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg:        #09080a;
+  --bg-2:      #0f0d10;
+  --bg-3:      #161318;
+  --surface:   #1c1820;
+  --surface-2: #221e28;
+  --border:    rgba(255,185,100,0.08);
+  --border-hi: rgba(255,185,100,0.18);
+  --ink:       #f4ede2;
+  --ink-2:     #b0a090;
+  --ink-3:     #756659;
+  --mint:      #e8923a;
+  --mint-dim:  rgba(232,146,58,0.13);
+  --mint-glow: rgba(232,146,58,0.4);
+  --gold:      #f5c842;
+  --gold-dim:  rgba(245,200,66,0.12);
+  --red:       #e05555;
+  --red-dim:   rgba(224,85,85,0.12);
+  --green:     #3ecf8e;
+  --green-dim: rgba(62,207,142,0.12);
+  --sidebar-w: 240px;
+  --sans:    'Inter', system-ui, sans-serif;
+  --display: 'Fraunces', Georgia, serif;
+  --ease:    cubic-bezier(0.23, 1, 0.32, 1);
+  --radius-sm: 10px; --radius: 16px; --radius-lg: 20px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { cursor: none; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
+  overflow-x: hidden;
+  cursor: none;
+}
+*, a, button, input, select { cursor: none !important; }
+@media (hover: none) { html, body, *, a, button { cursor: auto !important; } }
+a { color: inherit; text-decoration: none; }
+button { font-family: var(--sans); border: none; }
+ul { list-style: none; }
+
+/* ── Custom cursor ── */
+#cursor { position: fixed; pointer-events: none; z-index: 99999; top: 0; left: 0; }
+#cursor-dot {
+  position: absolute;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--mint); top: -4px; left: -4px;
+  box-shadow: 0 0 12px var(--mint-glow);
+  transition: transform 0.12s var(--ease);
+}
+#cursor-ring {
+  position: absolute;
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 1.5px solid rgba(232,146,58,0.45);
+  top: -14px; left: -14px;
+}
+body.cur-hover #cursor-dot { transform: scale(1.6); }
+body.cur-hover #cursor-ring { width: 48px; height: 48px; top: -24px; left: -24px; border-color: rgba(232,146,58,0.7); }
+@media (hover: none) { #cursor { display: none; } }
+
+/* ── Layout ── */
+.layout { display: flex; min-height: 100svh; }
+
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--bg-2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 50;
+  transition: transform 0.3s var(--ease);
+}
+.sidebar-logo {
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.sidebar-logo a {
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+.sidebar-logo span { color: var(--mint); }
+.sidebar-nav {
+  flex: 1;
+  padding: 12px 10px;
+  overflow-y: auto;
+}
+.nav-group-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  padding: 14px 10px 6px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-2);
+  transition: background 0.15s, color 0.15s;
+  margin-bottom: 2px;
+}
+.nav-item:hover { background: rgba(255,255,255,0.04); color: var(--ink); }
+.nav-item.active {
+  background: var(--mint-dim);
+  color: var(--mint);
+  font-weight: 600;
+}
+.nav-item svg { flex-shrink: 0; opacity: 0.8; }
+.nav-item.active svg { opacity: 1; }
+.nav-badge {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 100px;
+  background: var(--mint-dim);
+  color: var(--mint);
+}
+.sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s;
+}
+.sidebar-user:hover { background: rgba(255,255,255,0.04); }
+.user-avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--mint), #ffc255);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 14px;
+  color: #09080a;
+  flex-shrink: 0;
+}
+.user-info { overflow: hidden; }
+.user-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user-plan { font-size: 11px; color: var(--ink-3); }
+.plan-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--mint);
+  background: var(--mint-dim);
+  padding: 2px 6px;
+  border-radius: 100px;
+}
+
+/* ── Main ── */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+}
+.main-header {
+  padding: 24px 32px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  background: rgba(9,8,10,0.85);
+  backdrop-filter: blur(16px);
+  z-index: 40;
+}
+.header-greeting h1 {
+  font-family: var(--display);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.header-greeting p { font-size: 13px; color: var(--ink-3); margin-top: 2px; }
+.header-actions { display: flex; align-items: center; gap: 12px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 20px; border-radius: 100px;
+  font-size: 14px; font-weight: 600; font-family: var(--sans);
+  transition: transform 0.2s var(--ease), box-shadow 0.2s, opacity 0.2s;
+}
+.btn:active { transform: scale(0.97) !important; }
+.btn-primary { background: var(--mint); color: #09080a; }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 0 24px var(--mint-glow); }
+.btn-ghost {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border-hi);
+  color: var(--ink);
+}
+.btn-ghost:hover { background: rgba(255,255,255,0.08); }
+.btn-sm { padding: 8px 16px; font-size: 13px; }
+
+/* ── Page content ── */
+.page { padding: 32px; display: flex; flex-direction: column; gap: 24px; }
+
+/* ── Stats row ── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  transition: border-color 0.2s;
+}
+.stat-card:hover { border-color: var(--border-hi); }
+.stat-card-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-3);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.stat-card-value {
+  font-family: var(--display);
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.stat-card-value.green { color: var(--green); }
+.stat-card-value.amber { color: var(--mint); }
+.stat-card-delta {
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.stat-card-delta.up { color: var(--green); }
+.stat-card-delta.down { color: var(--red); }
+.stat-card-delta.neutral { color: var(--ink-3); }
+
+/* ── Dashboard grid ── */
+.dash-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 16px;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.card-header {
+  padding: 20px 24px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+.card-title {
+  font-family: var(--display);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.card-subtitle { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+.card-action {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mint);
+  display: flex; align-items: center; gap: 4px;
+  transition: opacity 0.2s;
+}
+.card-action:hover { opacity: 0.75; }
+
+/* ── Spending chart ── */
+.chart-wrap { padding: 24px; }
+.chart-months {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 4px 0;
+  font-size: 11px;
+  color: var(--ink-3);
+  font-weight: 500;
+}
+.chart-y-labels {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--ink-3);
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  gap: 0;
+}
+.chart-outer { position: relative; display: flex; gap: 8px; }
+.chart-svg-wrap { flex: 1; position: relative; }
+.chart-svg { width: 100%; overflow: visible; display: block; }
+.chart-total-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.chart-total-amount {
+  font-family: var(--display);
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+.chart-total-label { font-size: 13px; color: var(--ink-3); }
+.chart-delta {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--green);
+  display: flex; align-items: center; gap: 4px;
+}
+
+/* Chart tooltip */
+.chart-tooltip {
+  position: absolute;
+  background: var(--surface-2);
+  border: 1px solid var(--border-hi);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-size: 12px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+  z-index: 10;
+}
+.chart-tooltip strong { font-family: var(--display); font-size: 16px; font-weight: 700; display: block; }
+
+/* ── Opportunities ── */
+.opportunities-list { padding: 8px 0; }
+.opp-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+.opp-item:last-child { border-bottom: none; }
+.opp-item:hover { background: rgba(255,255,255,0.02); }
+.opp-icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.opp-icon.cancel { background: var(--red-dim); color: var(--red); }
+.opp-icon.switch { background: var(--mint-dim); color: var(--mint); }
+.opp-icon.downgrade { background: var(--gold-dim); color: var(--gold); }
+.opp-info { flex: 1; min-width: 0; }
+.opp-name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.opp-action { font-size: 12px; color: var(--ink-3); margin-top: 1px; }
+.opp-saving {
+  font-family: var(--display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--green);
+  flex-shrink: 0;
+}
+.opp-saving-period { font-size: 11px; color: var(--ink-3); }
+.opp-status {
+  flex-shrink: 0;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-hi);
+  display: flex; align-items: center; justify-content: center;
+}
+.opp-status.done { background: var(--green-dim); border-color: rgba(62,207,142,0.3); color: var(--green); }
+
+/* ── Full-width cards ── */
+.full-cards { display: flex; flex-direction: column; gap: 16px; }
+
+/* ── Table ── */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  padding: 12px 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  text-align: left;
+  background: var(--bg-3);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+tbody td {
+  padding: 14px 20px;
+  font-size: 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr { transition: background 0.12s; }
+tbody tr:hover { background: rgba(255,255,255,0.02); }
+.scan-icon {
+  width: 32px; height: 32px;
+  border-radius: 9px;
+  background: var(--mint-dim);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--mint);
+}
+.scan-name { font-weight: 600; }
+.scan-date { color: var(--ink-3); font-size: 13px; }
+.findings-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.findings-pill.found { background: var(--mint-dim); color: var(--mint); }
+.findings-pill.none { background: rgba(255,255,255,0.05); color: var(--ink-3); }
+.savings-amount { font-family: var(--display); font-weight: 700; color: var(--green); font-size: 15px; }
+.scan-status {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12px; font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 100px;
+}
+.scan-status.reviewed { background: var(--green-dim); color: var(--green); }
+.scan-status.pending { background: var(--mint-dim); color: var(--mint); }
+
+/* ── Subscriptions ── */
+.sub-item {
+  display: grid;
+  grid-template-columns: 36px 1fr auto auto auto;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.12s;
+}
+.sub-item:last-child { border-bottom: none; }
+.sub-item:hover { background: rgba(255,255,255,0.02); }
+.sub-icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: var(--bg-3);
+  border: 1px solid var(--border-hi);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--display);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+.sub-name { font-size: 14px; font-weight: 600; }
+.sub-cat { font-size: 12px; color: var(--ink-3); margin-top: 1px; }
+.sub-renewal { font-size: 12px; color: var(--ink-3); text-align: right; }
+.sub-renewal strong { display: block; color: var(--ink-2); font-size: 13px; font-weight: 500; }
+.sub-amount { font-family: var(--display); font-size: 16px; font-weight: 700; text-align: right; }
+.sub-flag {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 700;
+  padding: 3px 9px; border-radius: 100px;
+  white-space: nowrap;
+}
+.sub-flag.ok { background: var(--green-dim); color: var(--green); }
+.sub-flag.warn { background: var(--mint-dim); color: var(--mint); }
+.sub-flag.flag { background: var(--red-dim); color: var(--red); }
+
+/* ── Upload modal ── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(9,8,10,0.8);
+  backdrop-filter: blur(10px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border-hi);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  width: 100%;
+  max-width: 480px;
+  transform: scale(0.96) translateY(8px);
+  transition: transform 0.3s var(--ease);
+  box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+}
+.modal-overlay.open .modal { transform: scale(1) translateY(0); }
+.modal-title {
+  font-family: var(--display);
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.modal-sub { font-size: 14px; color: var(--ink-2); margin-bottom: 28px; line-height: 1.65; }
+.modal-upload-zone {
+  border: 2px dashed rgba(232,146,58,0.3);
+  border-radius: var(--radius);
+  padding: 36px;
+  text-align: center;
+  background: var(--mint-dim);
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.modal-upload-zone::before {
+  content: '';
+  position: absolute; inset: -1px;
+  border-radius: calc(var(--radius) + 1px);
+}
+.modal-upload-label { font-size: 14px; color: var(--ink-2); margin: 10px 0 16px; }
+.modal-types { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-top: 12px; }
+.type-chip {
+  font-size: 11px; font-weight: 600;
+  padding: 3px 10px; border-radius: 100px;
+  background: var(--bg-3); border: 1px solid var(--border-hi);
+  color: var(--ink-3);
+}
+.modal-close {
+  position: absolute; top: 16px; right: 16px;
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border-hi);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink-2);
+  font-size: 16px;
+  transition: background 0.15s;
+}
+.modal-close:hover { background: rgba(255,255,255,0.1); }
+.modal-input {
+  width: 100%;
+  background: var(--bg-3);
+  border: 1px solid var(--border-hi);
+  border-radius: var(--radius-sm);
+  padding: 11px 14px;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.modal-input:focus { border-color: var(--mint); }
+.modal-input::placeholder { color: var(--ink-3); }
+
+/* ── Scan result state in modal ── */
+.scan-result-state { display: none; }
+.scan-result-state.show { display: block; }
+.scan-upload-state { display: block; }
+.scan-upload-state.hide { display: none; }
+
+.result-finding {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  animation: slideIn 0.4s var(--ease) both;
+}
+.result-finding:last-child { border-bottom: none; }
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.result-finding-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.result-finding-dot.save { background: var(--green); }
+.result-finding-dot.flag { background: var(--red); }
+.result-finding-dot.warn { background: var(--mint); }
+.result-finding-info { flex: 1; font-size: 14px; font-weight: 500; }
+.result-finding-sub { font-size: 12px; color: var(--ink-3); margin-top: 1px; }
+.result-finding-amount { font-family: var(--display); font-weight: 700; font-size: 16px; color: var(--green); }
+.result-total {
+  margin-top: 16px;
+  padding: 14px 16px;
+  background: var(--green-dim);
+  border: 1px solid rgba(62,207,142,0.2);
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.result-total-label { font-size: 13px; font-weight: 600; color: var(--green); }
+.result-total-amount { font-family: var(--display); font-size: 22px; font-weight: 800; color: var(--green); }
+
+/* ── Progress scan animation ── */
+.scan-progress { padding: 20px 0; }
+.scan-progress-bar {
+  height: 3px;
+  background: var(--bg-3);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.scan-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--mint), #ffc255);
+  border-radius: 2px;
+  width: 0%;
+  transition: width 0.4s var(--ease);
+}
+.scan-progress-label { font-size: 13px; color: var(--ink-3); text-align: center; }
+
+/* ── Responsive ── */
+@media (max-width: 1100px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .dash-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 900px) {
+  :root { --sidebar-w: 0px; }
+  .sidebar { transform: translateX(-240px); }
+  .sidebar.open { transform: translateX(0); --sidebar-w: 240px; }
+  .main { margin-left: 0; }
+  .page { padding: 20px 16px; }
+  .main-header { padding: 16px; }
+  .mobile-menu-btn { display: flex !important; }
+  .sub-item { grid-template-columns: 36px 1fr auto; }
+  .sub-item .sub-renewal, .sub-item .sub-flag { display: none; }
+}
+@media (max-width: 600px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .stat-card-value { font-size: 26px; }
+}
+.mobile-menu-btn {
+  display: none;
+  align-items: center; justify-content: center;
+  width: 36px; height: 36px;
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border-hi);
+  color: var(--ink);
+}
+.sidebar-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 49;
+}
+.sidebar-overlay.show { display: block; }
+</style>
+</head>
+<body>
+<div id="cursor"><div id="cursor-dot"></div><div id="cursor-ring"></div></div>
+
+<!-- ── Sidebar overlay (mobile) ── -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<div class="layout">
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <a href="index.html">costra<span>.</span></a>
+    </div>
+
+    <nav class="sidebar-nav">
+      <span class="nav-group-label">Overview</span>
+      <a href="#" class="nav-item active" onclick="setPage('dashboard',this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+      <a href="#" class="nav-item" onclick="setPage('scans',this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Scans
+        <span class="nav-badge">4</span>
+      </a>
+
+      <span class="nav-group-label">Money</span>
+      <a href="#" class="nav-item" onclick="setPage('subscriptions',this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Subscriptions
+      </a>
+      <a href="#" class="nav-item" onclick="setPage('savings',this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Savings
+      </a>
+
+      <span class="nav-group-label">Account</span>
+      <a href="index.html#pricing" class="nav-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+        Billing
+      </a>
+      <a href="#" class="nav-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+        Settings
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar">S</div>
+        <div class="user-info">
+          <div class="user-name">Sarah M.</div>
+          <div class="user-plan"><span class="plan-chip">Annual</span></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main class="main">
+    <header class="main-header">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div class="header-greeting">
+          <h1>Good morning, Sarah</h1>
+          <p>Friday, May 9, 2026 · Your savings are looking good this month</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <a href="index.html" class="btn btn-ghost btn-sm">Back to site</a>
+        <button class="btn btn-primary btn-sm" onclick="openUploadModal()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Upload new scan
+        </button>
+      </div>
+    </header>
+
+    <!-- ── DASHBOARD PAGE ── -->
+    <div class="page" id="page-dashboard">
+
+      <!-- Stats row -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-card-label">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            Total saved
+          </div>
+          <div class="stat-card-value green" id="counterSaved">$0</div>
+          <div class="stat-card-delta up">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+            +$143 from last month
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            Monthly spend
+          </div>
+          <div class="stat-card-value" id="counterSpend">$0</div>
+          <div class="stat-card-delta up">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+            Down $49 from last month
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            Active subscriptions
+          </div>
+          <div class="stat-card-value" id="counterSubs">0</div>
+          <div class="stat-card-delta neutral">2 flagged for review</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Open opportunities
+          </div>
+          <div class="stat-card-value amber" id="counterOpps">0</div>
+          <div class="stat-card-delta down">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            $163/mo if acted on
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart + opportunities -->
+      <div class="dash-grid">
+        <!-- Spending chart -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Monthly spending</div>
+              <div class="card-subtitle">Tracked across all scanned bills</div>
+            </div>
+            <div style="display:flex;gap:16px;align-items:center">
+              <div class="chart-total-row" style="flex-direction:column;align-items:flex-end;gap:2px">
+                <div style="display:flex;align-items:baseline;gap:6px">
+                  <span class="chart-total-amount">$371</span>
+                  <span class="chart-total-label">/mo now</span>
+                </div>
+                <div class="chart-delta">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+                  −$49 vs 6mo ago
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <div class="chart-outer">
+              <div class="chart-svg-wrap">
+                <svg class="chart-svg" viewBox="0 0 560 160" preserveAspectRatio="none" id="spendChart">
+                  <defs>
+                    <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="rgba(232,146,58,0.18)"/>
+                      <stop offset="100%" stop-color="rgba(232,146,58,0)"/>
+                    </linearGradient>
+                    <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stop-color="#e8923a"/>
+                      <stop offset="100%" stop-color="#ffc255"/>
+                    </linearGradient>
+                  </defs>
+                  <!-- Grid lines -->
+                  <line x1="0" y1="40" x2="560" y2="40" stroke="rgba(255,185,100,0.07)" stroke-width="1"/>
+                  <line x1="0" y1="80" x2="560" y2="80" stroke="rgba(255,185,100,0.07)" stroke-width="1"/>
+                  <line x1="0" y1="120" x2="560" y2="120" stroke="rgba(255,185,100,0.07)" stroke-width="1"/>
+                  <!-- Area fill -->
+                  <path id="chartArea"
+                    d="M 20,20 C 60,22 80,38 113,38 C 146,38 166,130 200,132 C 234,134 254,112 287,112 C 320,112 340,132 373,130 C 406,128 440,148 540,152 L 540,160 L 20,160 Z"
+                    fill="url(#areaGrad)"/>
+                  <!-- Line -->
+                  <path id="chartLine"
+                    d="M 20,20 C 60,22 80,38 113,38 C 146,38 166,130 200,132 C 234,134 254,112 287,112 C 320,112 340,132 373,130 C 406,128 440,148 540,152"
+                    fill="none"
+                    stroke="url(#lineGrad)"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"/>
+                  <!-- Data points -->
+                  <circle cx="20"  cy="20"  r="4" fill="#e8923a" stroke="#09080a" stroke-width="2" class="chart-dot" data-label="Nov" data-val="$420"/>
+                  <circle cx="113" cy="38"  r="4" fill="#e8923a" stroke="#09080a" stroke-width="2" class="chart-dot" data-label="Dec" data-val="$415"/>
+                  <circle cx="200" cy="132" r="4" fill="#e8923a" stroke="#09080a" stroke-width="2" class="chart-dot" data-label="Jan" data-val="$387"/>
+                  <circle cx="287" cy="112" r="4" fill="#e8923a" stroke="#09080a" stroke-width="2" class="chart-dot" data-label="Feb" data-val="$391"/>
+                  <circle cx="373" cy="130" r="4" fill="#e8923a" stroke="#09080a" stroke-width="2" class="chart-dot" data-label="Mar" data-val="$387"/>
+                  <circle cx="540" cy="152" r="5" fill="#3ecf8e" stroke="#09080a" stroke-width="2" class="chart-dot" data-label="May" data-val="$371"/>
+                </svg>
+                <div class="chart-tooltip" id="chartTooltip">
+                  <strong>$420</strong> Nov
+                </div>
+              </div>
+            </div>
+            <div class="chart-months">
+              <span>Nov</span><span>Dec</span><span>Jan</span><span>Feb</span><span>Mar</span><span>May</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Opportunities -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Savings opportunities</div>
+              <div class="card-subtitle">Act on these to save $163/mo</div>
+            </div>
+            <a href="#" class="card-action" onclick="setPage('savings',document.querySelector('[onclick*=savings]'))">
+              View all
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+          </div>
+          <div class="opportunities-list">
+            <div class="opp-item">
+              <div class="opp-icon cancel"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div>
+              <div class="opp-info">
+                <div class="opp-name">Gym membership</div>
+                <div class="opp-action">Not used in 4 months — cancel</div>
+              </div>
+              <div>
+                <div class="opp-saving">$49</div>
+                <div class="opp-saving-period">/month</div>
+              </div>
+              <div class="opp-status"></div>
+            </div>
+            <div class="opp-item">
+              <div class="opp-icon switch"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+              <div class="opp-info">
+                <div class="opp-name">Phone plan</div>
+                <div class="opp-action">Switch to MVNO — same coverage</div>
+              </div>
+              <div>
+                <div class="opp-saving">$37</div>
+                <div class="opp-saving-period">/month</div>
+              </div>
+              <div class="opp-status"></div>
+            </div>
+            <div class="opp-item">
+              <div class="opp-icon downgrade"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+              <div class="opp-info">
+                <div class="opp-name">Adobe Creative Cloud</div>
+                <div class="opp-action">Downgrade to Photography plan</div>
+              </div>
+              <div>
+                <div class="opp-saving">$32</div>
+                <div class="opp-saving-period">/month</div>
+              </div>
+              <div class="opp-status"></div>
+            </div>
+            <div class="opp-item">
+              <div class="opp-icon switch"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg></div>
+              <div class="opp-info">
+                <div class="opp-name">Cloud storage</div>
+                <div class="opp-action">iCloud + Google One overlap</div>
+              </div>
+              <div>
+                <div class="opp-saving">$31</div>
+                <div class="opp-saving-period">/month</div>
+              </div>
+              <div class="opp-status done">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+            </div>
+            <div class="opp-item">
+              <div class="opp-icon switch"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg></div>
+              <div class="opp-info">
+                <div class="opp-name">Streaming overlap</div>
+                <div class="opp-action">Bundle Netflix + Hulu together</div>
+              </div>
+              <div>
+                <div class="opp-saving">$14</div>
+                <div class="opp-saving-period">/month</div>
+              </div>
+              <div class="opp-status"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent scans -->
+      <div class="card full-cards">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Recent scans</div>
+            <div class="card-subtitle">Your uploaded bills and statements</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="openUploadModal()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            New scan
+          </button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Document</th>
+                <th>Date scanned</th>
+                <th>Findings</th>
+                <th>Potential savings</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div style="display:flex;align-items:center;gap:12px">
+                    <div class="scan-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+                    <div><div class="scan-name">Bank statement — May</div><div class="scan-date">Chase Checking ···4821</div></div>
+                  </div>
+                </td>
+                <td style="color:var(--ink-2)">May 9, 2026</td>
+                <td><span class="findings-pill found">7 findings</span></td>
+                <td><span class="savings-amount">$163/mo</span></td>
+                <td><span class="scan-status pending">In review</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="display:flex;align-items:center;gap:12px">
+                    <div class="scan-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg></div>
+                    <div><div class="scan-name">Netflix invoice</div><div class="scan-date">Standard plan receipt</div></div>
+                  </div>
+                </td>
+                <td style="color:var(--ink-2)">May 2, 2026</td>
+                <td><span class="findings-pill found">1 finding</span></td>
+                <td><span class="savings-amount">$7/mo</span></td>
+                <td><span class="scan-status reviewed">Reviewed</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="display:flex;align-items:center;gap:12px">
+                    <div class="scan-icon" style="background:var(--gold-dim);color:var(--gold)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
+                    <div><div class="scan-name">Phone bill</div><div class="scan-date">T-Mobile monthly statement</div></div>
+                  </div>
+                </td>
+                <td style="color:var(--ink-2)">Apr 28, 2026</td>
+                <td><span class="findings-pill found">2 findings</span></td>
+                <td><span class="savings-amount">$37/mo</span></td>
+                <td><span class="scan-status reviewed">Reviewed</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="display:flex;align-items:center;gap:12px">
+                    <div class="scan-icon" style="background:rgba(255,255,255,0.05);color:var(--ink-3)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg></div>
+                    <div><div class="scan-name">Utilities bill</div><div class="scan-date">ConEd — April</div></div>
+                  </div>
+                </td>
+                <td style="color:var(--ink-2)">Apr 15, 2026</td>
+                <td><span class="findings-pill none">0 findings</span></td>
+                <td style="color:var(--ink-3);font-size:13px">—</td>
+                <td><span class="scan-status reviewed">Reviewed</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Subscriptions -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Tracked subscriptions</div>
+            <div class="card-subtitle">Recurring charges Costra is watching</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:13px;color:var(--ink-3)">Total: <strong style="color:var(--ink-2)">$371/mo</strong></span>
+          </div>
+        </div>
+        <div>
+          <div class="sub-item">
+            <div class="sub-icon">N</div>
+            <div><div class="sub-name">Netflix</div><div class="sub-cat">Streaming</div></div>
+            <div class="sub-renewal"><strong>May 25</strong>renews</div>
+            <div class="sub-amount">$15.99</div>
+            <span class="sub-flag ok">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+              OK
+            </span>
+          </div>
+          <div class="sub-item">
+            <div class="sub-icon" style="background:var(--red-dim);border-color:rgba(224,85,85,0.2);color:var(--red)">GYM</div>
+            <div><div class="sub-name">Planet Fitness</div><div class="sub-cat">Health &amp; Fitness</div></div>
+            <div class="sub-renewal"><strong>May 14</strong>renews</div>
+            <div class="sub-amount">$49.00</div>
+            <span class="sub-flag flag">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Unused
+            </span>
+          </div>
+          <div class="sub-item">
+            <div class="sub-icon">Sp</div>
+            <div><div class="sub-name">Spotify</div><div class="sub-cat">Music</div></div>
+            <div class="sub-renewal"><strong>May 12</strong>renews</div>
+            <div class="sub-amount">$9.99</div>
+            <span class="sub-flag ok">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+              OK
+            </span>
+          </div>
+          <div class="sub-item">
+            <div class="sub-icon" style="background:var(--mint-dim);border-color:rgba(232,146,58,0.2);color:var(--mint)">Ad</div>
+            <div><div class="sub-name">Adobe Creative Cloud</div><div class="sub-cat">Design software</div></div>
+            <div class="sub-renewal"><strong>Jun 1</strong>renews</div>
+            <div class="sub-amount">$54.99</div>
+            <span class="sub-flag warn">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="2" x2="12" y2="13"/><circle cx="12" cy="17" r="1" fill="currentColor"/></svg>
+              Overpriced
+            </span>
+          </div>
+          <div class="sub-item">
+            <div class="sub-icon">iC</div>
+            <div><div class="sub-name">iCloud+</div><div class="sub-cat">Cloud storage</div></div>
+            <div class="sub-renewal"><strong>May 22</strong>renews</div>
+            <div class="sub-amount">$9.99</div>
+            <span class="sub-flag warn">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="2" x2="12" y2="13"/><circle cx="12" cy="17" r="1" fill="currentColor"/></svg>
+              Duplicate
+            </span>
+          </div>
+          <div class="sub-item">
+            <div class="sub-icon">G1</div>
+            <div><div class="sub-name">Google One</div><div class="sub-cat">Cloud storage</div></div>
+            <div class="sub-renewal"><strong>Jun 8</strong>renews</div>
+            <div class="sub-amount">$2.99</div>
+            <span class="sub-flag flag">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Duplicate
+            </span>
+          </div>
+          <div class="sub-item">
+            <div class="sub-icon">Hu</div>
+            <div><div class="sub-name">Hulu</div><div class="sub-cat">Streaming</div></div>
+            <div class="sub-renewal"><strong>May 30</strong>renews</div>
+            <div class="sub-amount">$17.99</div>
+            <span class="sub-flag ok">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+              OK
+            </span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /page-dashboard -->
+  </main>
+</div>
+
+<!-- ── Upload modal ── -->
+<div class="modal-overlay" id="uploadModal">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeUploadModal()">×</button>
+
+    <!-- Upload state -->
+    <div class="scan-upload-state" id="uploadState">
+      <div class="modal-title">Upload a new scan</div>
+      <div class="modal-sub">Drop any bill, subscription screenshot, or bank statement. Costra reads it and finds every saving.</div>
+      <div class="modal-upload-zone" id="modalDropZone">
+        <div style="color:var(--mint);margin-bottom:12px">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+        </div>
+        <div class="modal-upload-label">Drag and drop your file here</div>
+        <label for="modalFileInput">
+          <span class="btn btn-primary btn-sm" style="display:inline-flex;margin-bottom:12px">Browse files</span>
+        </label>
+        <input type="file" id="modalFileInput" style="display:none" accept="image/*,.pdf" multiple />
+        <div class="modal-types">
+          <span class="type-chip">JPG / PNG</span>
+          <span class="type-chip">PDF</span>
+          <span class="type-chip">Screenshots</span>
+        </div>
+      </div>
+      <div style="margin-top:12px;display:flex;align-items:center;gap:8px">
+        <input type="url" class="modal-input" placeholder="Or paste a link to your online statement…" style="flex:1">
+        <button class="btn btn-ghost btn-sm" onclick="startFakeScan()">Scan</button>
+      </div>
+    </div>
+
+    <!-- Scanning progress -->
+    <div class="scan-result-state" id="scanProgress">
+      <div class="modal-title">Analyzing your document…</div>
+      <div class="modal-sub" id="scanStatusText">Reading bill structure and identifying charges</div>
+      <div class="scan-progress">
+        <div class="scan-progress-bar"><div class="scan-progress-fill" id="scanFill"></div></div>
+        <div class="scan-progress-label" id="scanPct">0%</div>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="scan-result-state" id="scanResults">
+      <div class="modal-title" style="color:var(--green)">3 savings found</div>
+      <div class="modal-sub">Here's what Costra found in your document.</div>
+      <div style="margin:8px 0 16px">
+        <div class="result-finding" style="animation-delay:0.05s">
+          <div class="result-finding-dot save"></div>
+          <div class="result-finding-info">
+            <div>Gym membership unused</div>
+            <div class="result-finding-sub">No check-ins detected in 4 months — cancel to save</div>
+          </div>
+          <div class="result-finding-amount">$49/mo</div>
+        </div>
+        <div class="result-finding" style="animation-delay:0.2s">
+          <div class="result-finding-dot warn"></div>
+          <div class="result-finding-info">
+            <div>Streaming overlap</div>
+            <div class="result-finding-sub">Netflix + Hulu — bundle available for less</div>
+          </div>
+          <div class="result-finding-amount">$14/mo</div>
+        </div>
+        <div class="result-finding" style="animation-delay:0.35s">
+          <div class="result-finding-dot save"></div>
+          <div class="result-finding-info">
+            <div>Internet plan — better rate</div>
+            <div class="result-finding-sub">Provider has a lower promotional rate available now</div>
+          </div>
+          <div class="result-finding-amount">$20/mo</div>
+        </div>
+      </div>
+      <div class="result-total">
+        <span class="result-total-label">Total monthly savings found</span>
+        <span class="result-total-amount">$83/mo</span>
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:16px;border-radius:var(--radius-sm)" onclick="closeUploadModal()">
+        View in dashboard
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── Custom cursor ── */
+const cursorEl = document.getElementById('cursor');
+const cursorDot = document.getElementById('cursor-dot');
+const cursorRing = document.getElementById('cursor-ring');
+let cx = -100, cy = -100, rx = -100, ry = -100;
+document.addEventListener('mousemove', e => {
+  cx = e.clientX; cy = e.clientY;
+  cursorDot.style.transform = `translate(${cx}px,${cy}px)`;
+});
+document.querySelectorAll('a,button,.nav-item,.stat-card,.opp-item,.sub-item,.card-action').forEach(el => {
+  el.addEventListener('mouseenter', () => document.body.classList.add('cur-hover'));
+  el.addEventListener('mouseleave', () => document.body.classList.remove('cur-hover'));
+});
+(function ring() {
+  rx += (cx - rx) * 0.12; ry += (cy - ry) * 0.12;
+  cursorRing.style.transform = `translate(${rx}px,${ry}px)`;
+  requestAnimationFrame(ring);
+})();
+
+/* ── Stat counters ── */
+function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+function counter(el, target, prefix, suffix, dur) {
+  const s = performance.now();
+  const go = now => {
+    const p = Math.min((now - s) / dur, 1);
+    el.textContent = prefix + Math.round(easeOut(p) * target) + suffix;
+    if (p < 1) requestAnimationFrame(go);
+  };
+  requestAnimationFrame(go);
+}
+setTimeout(() => {
+  counter(document.getElementById('counterSaved'), 847, '$', '', 1600);
+  counter(document.getElementById('counterSpend'), 371, '$', '', 1400);
+  counter(document.getElementById('counterSubs'), 14, '', '', 1000);
+  counter(document.getElementById('counterOpps'), 5, '', '', 900);
+}, 300);
+
+/* ── Chart tooltip ── */
+const tooltip = document.getElementById('chartTooltip');
+const chartSvgWrap = document.querySelector('.chart-svg-wrap');
+document.querySelectorAll('.chart-dot').forEach(dot => {
+  dot.addEventListener('mouseenter', e => {
+    const rect = chartSvgWrap.getBoundingClientRect();
+    const dotRect = dot.getBoundingClientRect();
+    tooltip.innerHTML = `<strong>${dot.dataset.val}</strong>${dot.dataset.label}`;
+    tooltip.style.opacity = '1';
+    tooltip.style.left = (dotRect.left - rect.left - 40) + 'px';
+    tooltip.style.top = (dotRect.top - rect.top - 52) + 'px';
+  });
+  dot.addEventListener('mouseleave', () => { tooltip.style.opacity = '0'; });
+});
+
+/* ── Navigation pages (simple show/hide) ── */
+function setPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+  const target = document.getElementById('page-' + id);
+  if (target) target.style.display = 'flex';
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  closeSidebar();
+}
+
+/* ── Mobile sidebar ── */
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('show');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('show');
+}
+
+/* ── Upload modal ── */
+function openUploadModal() {
+  document.getElementById('uploadModal').classList.add('open');
+  resetModal();
+}
+function closeUploadModal() {
+  document.getElementById('uploadModal').classList.remove('open');
+}
+function resetModal() {
+  document.getElementById('uploadState').classList.remove('hide');
+  document.getElementById('scanProgress').classList.remove('show');
+  document.getElementById('scanResults').classList.remove('show');
+  document.getElementById('scanFill').style.width = '0%';
+}
+document.getElementById('uploadModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('uploadModal')) closeUploadModal();
+});
+
+/* ── Fake scan flow ── */
+const modalDropZone = document.getElementById('modalDropZone');
+const modalFileInput = document.getElementById('modalFileInput');
+modalDropZone.addEventListener('dragover', e => { e.preventDefault(); modalDropZone.style.borderColor = 'var(--mint)'; });
+modalDropZone.addEventListener('dragleave', () => { modalDropZone.style.borderColor = ''; });
+modalDropZone.addEventListener('drop', e => { e.preventDefault(); startFakeScan(); });
+modalFileInput.addEventListener('change', () => { if (modalFileInput.files.length) startFakeScan(); });
+
+function startFakeScan() {
+  document.getElementById('uploadState').classList.add('hide');
+  document.getElementById('scanProgress').classList.add('show');
+  const fill = document.getElementById('scanFill');
+  const pct = document.getElementById('scanPct');
+  const statusText = document.getElementById('scanStatusText');
+  const steps = [
+    [20, 'Reading bill structure and identifying charges…'],
+    [45, 'Detecting subscription patterns…'],
+    [68, 'Checking for duplicate services…'],
+    [85, 'Researching cheaper alternatives…'],
+    [100, 'Analysis complete — findings ready'],
+  ];
+  let i = 0;
+  const tick = () => {
+    if (i >= steps.length) {
+      setTimeout(showResults, 400);
+      return;
+    }
+    const [p, msg] = steps[i++];
+    fill.style.width = p + '%';
+    pct.textContent = p + '%';
+    statusText.textContent = msg;
+    setTimeout(tick, 600 + Math.random() * 400);
+  };
+  setTimeout(tick, 200);
+}
+
+function showResults() {
+  document.getElementById('scanProgress').classList.remove('show');
+  document.getElementById('scanResults').classList.add('show');
+}
+</script>
+</body>
+</html>
