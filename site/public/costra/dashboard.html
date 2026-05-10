@@ -757,7 +757,7 @@ tbody tr:hover { background: rgba(255,255,255,0.02); }
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
         Subscriptions
       </a>
-      <a href="#" class="nav-item" onclick="setPage('savings',this)">
+      <a href="#" id="navSavings" class="nav-item" onclick="setPage('savings',this)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
         Savings
       </a>
@@ -931,7 +931,7 @@ tbody tr:hover { background: rgba(255,255,255,0.02); }
               <div class="card-title">Savings opportunities</div>
               <div class="card-subtitle">Act on these to save $163/mo</div>
             </div>
-            <a href="#" class="card-action" onclick="setPage('savings',document.querySelector('[onclick*=savings]'))">
+            <a href="#" class="card-action" onclick="setPage('savings',document.getElementById('navSavings'))">
               View all
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </a>

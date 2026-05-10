@@ -3042,6 +3042,10 @@ function goToWaitlist() {
 
 function handleUrlScan() { goToWaitlist(); }
 
+/* dropZone is still in the DOM (locked state); declare it so the scan-flow
+   functions below don't throw ReferenceError if ever reached. */
+const dropZone = document.getElementById('dropZone');
+
 const SCAN_STEPS = [
   'Reading document structure…',
   'Identifying recurring charges…',
@@ -3123,16 +3127,6 @@ function resetScanner() {
   document.getElementById('fileInput').addEventListener('change', (e) => {
     if (e.target.files.length) handleFiles(e.target.files);
   });
-}
-
-function handleUrlScan() {
-  const urlInput = document.getElementById('urlInput');
-  const val = urlInput.value.trim();
-  if (!val) return;
-  const used = parseInt(localStorage.getItem('costra_uploads') || '0', 10);
-  if (used >= 1) { openUpgradeModal(); return; }
-  const fakeFile = [{ name: val }];
-  runScanFlow(fakeFile);
 }
 
 /* ── Upgrade modal ── */
