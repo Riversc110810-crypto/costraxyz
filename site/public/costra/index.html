@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800;9..144,900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<script async src="https://tally.so/widgets/embed.js"></script>
 <style>
 /* ─────────────────────────────────────────
    Tokens
@@ -3147,23 +3148,24 @@ document.getElementById('upgradeModal').addEventListener('click', (e) => {
   if (e.target === document.getElementById('upgradeModal')) closeUpgradeModal();
 });
 
-/* ── Signup / waitlist form ── */
-/* LAUNCH: update success messages below to reflect live-product flow */
+/* ── Tally popup helper ── */
+function openTally() {
+  if (window.Tally) {
+    Tally.openPopup('68Av5O', { layout: 'modal', width: 480 });
+  } else {
+    window.open('https://tally.so/r/68Av5O', '_blank');
+  }
+}
+
+/* Wire every "#signup" anchor and the waitlist form to open Tally */
+document.querySelectorAll('a[href="#signup"]').forEach(link => {
+  link.addEventListener('click', e => { e.preventDefault(); openTally(); });
+});
+
+/* ── Signup / waitlist form — opens Tally popup ── */
 function handleSignup(e) {
   e.preventDefault();
-  const btn = e.target.querySelector('button[type=submit]');
-  btn.textContent = 'Saving your spot…';
-  btn.disabled = true;
-  setTimeout(() => {
-    /* LAUNCH: change to "✓ Check your email!" */
-    btn.innerHTML = "✓ You're on the list!";
-    e.target.reset();
-    setTimeout(() => {
-      /* LAUNCH: change to "Get my free savings report <svg...>" */
-      btn.innerHTML = 'Reserve my spot <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-      btn.disabled = false;
-    }, 4000);
-  }, 1500);
+  openTally();
 }
 
 /* ── Animated stat counters (roll-up on scroll) ── */
