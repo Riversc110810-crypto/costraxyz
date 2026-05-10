@@ -1976,7 +1976,11 @@ body.cur-hover #cursor-ring {
   <div class="wrap">
     <div class="scanner-inner">
       <div class="scanner-content">
-        <p class="label reveal">AI Scanner</p>
+        <!-- LAUNCH: remove the lock pill, keep just the label text -->
+        <p class="label reveal" style="display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap">
+          AI Scanner
+          <span class="section-lock-pill"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Releasing soon</span>
+        </p>
         <h2 class="display-lg reveal reveal-delay-1">The smartest way to <span class="grad-mint">review expenses</span></h2>
         <p class="body-lg reveal reveal-delay-2">Costra's scanner reads and understands your bills the way a financial expert would — then finds every possible place to save.</p>
         <div class="scanner-features">
@@ -2270,8 +2274,11 @@ body.cur-hover #cursor-ring {
           <li><span class="pricing-check">✓</span>Plain-English savings report</li>
           <li><span class="pricing-check">✓</span>Email support</li>
         </ul>
-        <!-- LAUNCH: change to "Start 7-day free trial" -->
-        <a href="#signup" class="btn btn-ghost">Join the waitlist</a>
+        <!-- LAUNCH: change to: <a href="#signup" class="btn btn-ghost">Start 7-day free trial</a> -->
+        <button class="btn btn-locked" onclick="showLockedToast(this)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Not available yet
+        </button>
       </div>
 
       <!-- Annual -->
@@ -2292,10 +2299,11 @@ body.cur-hover #cursor-ring {
           <li><span class="pricing-check">✓</span>Annual savings summary report</li>
           <li><span class="pricing-check">✓</span>Priority support</li>
         </ul>
-        <!-- LAUNCH: change to "Start 7-day free trial" with arrow SVG -->
-        <a href="#signup" class="btn btn-primary">Join the waitlist
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </a>
+        <!-- LAUNCH: change to: <a href="#signup" class="btn btn-primary">Start 7-day free trial <svg...></a> -->
+        <button class="btn btn-locked btn-locked-primary" onclick="showLockedToast(this)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Not available yet
+        </button>
       </div>
 
     </div>
@@ -2656,6 +2664,13 @@ body.cur-hover #cursor-ring {
   </div>
 </footer>
 
+<!-- ───────────── LOCKED TOAST ───────────── -->
+<!-- LAUNCH: delete this toast element -->
+<div class="locked-toast" id="lockedToast">
+  <span class="locked-toast-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+  <span>Payments aren't live yet. <a href="#signup" onclick="hideLockedToast()">Join the waitlist</a> to get early access.</span>
+</div>
+
 <!-- ───────────── UPGRADE MODAL ───────────── -->
 <div class="upgrade-modal" id="upgradeModal">
   <div class="upgrade-modal-box">
@@ -2790,6 +2805,51 @@ body.cur-hover #cursor-ring {
   .upgrade-modal-box { padding: 40px 24px 32px; }
   .upgrade-modal-plans { grid-template-columns: 1fr; }
 }
+
+/* ── Section lock pill ── */
+/* LAUNCH: delete .section-lock-pill */
+.section-lock-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(255,185,100,0.08); border: 1px solid rgba(255,185,100,0.18);
+  color: var(--ink-3); border-radius: 20px;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.07em;
+  text-transform: uppercase; padding: 3px 10px;
+  vertical-align: middle; font-family: var(--sans);
+}
+
+/* ── Locked pricing buttons ── */
+/* LAUNCH: delete .btn-locked and .btn-locked-primary */
+.btn-locked {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  width: 100%; padding: 13px 20px; border-radius: var(--radius-sm);
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--ink-3); font-family: var(--sans);
+  font-size: 14px; font-weight: 500;
+  transition: border-color 0.2s, color 0.2s;
+}
+.btn-locked:hover { border-color: var(--border-hi); color: var(--ink-2); }
+.btn-locked-primary {
+  background: rgba(232,146,58,0.07); border-color: rgba(232,146,58,0.2);
+  color: rgba(232,146,58,0.55);
+}
+.btn-locked-primary:hover { border-color: rgba(232,146,58,0.35); color: rgba(232,146,58,0.75); }
+
+/* ── Locked toast ── */
+/* LAUNCH: delete .locked-toast */
+.locked-toast {
+  position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(16px);
+  background: var(--surface); border: 1px solid var(--border-hi);
+  border-radius: 12px; padding: 14px 20px;
+  display: flex; align-items: center; gap: 12px;
+  font-family: var(--sans); font-size: 14px; color: var(--ink);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  z-index: 9998; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s, transform 0.25s var(--ease);
+  white-space: nowrap;
+}
+.locked-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.locked-toast-icon { color: var(--mint); flex-shrink: 0; }
+.locked-toast a { color: var(--mint); text-decoration: underline; text-underline-offset: 2px; }
 
 /* ── Locked upload zone ── */
 /* LAUNCH: delete this entire block */
@@ -2963,6 +3023,18 @@ function handleFiles(files) {
   runScanFlow(files);
 }
 */
+
+/* ── Locked toast for pricing buttons — LAUNCH: delete showLockedToast + hideLockedToast ── */
+let toastTimer;
+function showLockedToast(btn) {
+  const toast = document.getElementById('lockedToast');
+  clearTimeout(toastTimer);
+  toast.classList.add('show');
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 4000);
+}
+function hideLockedToast() {
+  document.getElementById('lockedToast').classList.remove('show');
+}
 
 function goToWaitlist() {
   document.getElementById('signup').scrollIntoView({ behavior: 'smooth' });
