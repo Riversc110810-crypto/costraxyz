@@ -3055,17 +3055,23 @@ const SCAN_STEPS = [
 ];
 
 function runScanFlow(files) {
-  const fileName = files && files.length ? files[0].name : 'your document';
+  const rawName = files && files.length ? files[0].name : 'your document';
+  /* Truncate before DOM insertion — never inject fileName into innerHTML */
+  const safeDisplayName = rawName.length > 40 ? rawName.slice(0, 38) + '…' : rawName;
+
+  /* Build structure via innerHTML (no user data), then set filename via textContent */
   dropZone.innerHTML = `
     <div class="scan-flow-wrap">
       <div class="scan-flow-icon">
         <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
       </div>
-      <div class="scan-flow-filename">${fileName.length > 40 ? fileName.slice(0,38)+'…' : fileName}</div>
+      <div class="scan-flow-filename" id="scanFileName"></div>
       <div class="scan-flow-step-label" id="scanStepLabel">Initializing…</div>
       <div class="scan-flow-bar-track"><div class="scan-flow-bar" id="scanBar"></div></div>
       <div class="scan-flow-pct" id="scanPct">0%</div>
     </div>`;
+  /* Safe: textContent never interprets HTML */
+  document.getElementById('scanFileName').textContent = safeDisplayName;
 
   let step = 0;
   const bar  = document.getElementById('scanBar');

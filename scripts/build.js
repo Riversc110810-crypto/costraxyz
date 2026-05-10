@@ -506,7 +506,11 @@ function generateCFConfig(buildDir) {
   // _headers: security + cache headers
   const headers = `/*
   X-Content-Type-Options: nosniff
-  X-Frame-Options: SAMEORIGIN
+  X-Frame-Options: DENY
+  X-XSS-Protection: 1; mode=block
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), camera=(), microphone=(), payment=(), usb=(), interest-cohort=()
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'
 
 # HTML pages: browser always revalidates, CDN caches 1h
 /*.html
@@ -571,6 +575,7 @@ function generateCFConfig(buildDir) {
 /neon-mirai/ /neo-mirai/ 301
 /cases/neon-mirai /cases/neo-mirai 301
 /cases/neon-mirai/ /cases/neo-mirai 301
+/costra /costra/index.html 200
 `;
   fs.writeFileSync(path.join(buildDir, '_redirects'), redirects);
 

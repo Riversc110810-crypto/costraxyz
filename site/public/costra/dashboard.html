@@ -1296,7 +1296,12 @@ document.querySelectorAll('.chart-dot').forEach(dot => {
   dot.addEventListener('mouseenter', e => {
     const rect = chartSvgWrap.getBoundingClientRect();
     const dotRect = dot.getBoundingClientRect();
-    tooltip.innerHTML = `<strong>${dot.dataset.val}</strong>${dot.dataset.label}`;
+    /* Build tooltip with DOM methods — never inject dataset values via innerHTML */
+    tooltip.textContent = '';
+    const strong = document.createElement('strong');
+    strong.textContent = dot.dataset.val;
+    tooltip.appendChild(strong);
+    tooltip.appendChild(document.createTextNode(dot.dataset.label));
     tooltip.style.opacity = '1';
     tooltip.style.left = (dotRect.left - rect.left - 40) + 'px';
     tooltip.style.top = (dotRect.top - rect.top - 52) + 'px';
